@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { getAllProducts } from "@/services/productsServices";
 import { IProduct } from "@/helpers/mockProducts";
-import { useCart } from "@/Componets/CartContext";
+import { useCart } from "@/components/CartContext";
 import { useRouter } from "next/navigation";
 import { orderService } from "@/services/orderServices";
 import { confirmAction, showError, showSuccess } from "@/helpers/alerts";

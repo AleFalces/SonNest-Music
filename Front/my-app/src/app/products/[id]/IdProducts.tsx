@@ -4,7 +4,7 @@ import { getProductsById } from "@/services/productsServices";
 import { IProduct } from "@/helpers/mockProducts";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useCart } from "@/Componets/CartContext";
+import { useCart } from "@/components/CartContext";
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams();
