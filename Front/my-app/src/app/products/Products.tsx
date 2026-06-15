@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { getAllProducts } from "@/services/productsServices";
 import { IProduct } from "@/helpers/mockProducts";
-import Card from "@/Componets/Card";
+import Card from "@/components/Card";
 import { Loader2 } from "lucide-react"; // Ícono de carga
 
 const Products: React.FC = () => {

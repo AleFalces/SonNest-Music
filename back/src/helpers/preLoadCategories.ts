@@ -1,6 +1,6 @@
 import { AppDataSource } from "../config/dataSource";
 import { Category } from "../entities/Category";
-import { CategoryRepository } from "../repositories/category.respository";
+import { CategoryRepository } from "../repositories/category.repository";
 
 interface ICategory {
   name: string;

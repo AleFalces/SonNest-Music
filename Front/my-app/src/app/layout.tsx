@@ -18,10 +18,10 @@ export const metadata: Metadata = {
 };
 
 //componets
-import Navbar from "@/Componets/Navbar";
-import Footer from "@/Componets/Footer";
-import { AuthProvider } from "@/Componets/AuthContext";
-import { CartProvider } from "@/Componets/CartContext";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { AuthProvider } from "@/components/AuthContext";
+import { CartProvider } from "@/components/CartContext";
 import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({
