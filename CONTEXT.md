@@ -805,6 +805,14 @@ Notes that shape every step below:
 Today admin can only edit `stock`/`price` (`PATCH /products/:id`). Add **create**,
 **delete**, and full **edit** (name/description/price/stock/image/category).
 
+> **Backend DONE (TDD, in progress on `admin-stock-panel`).** Steps 1.1–1.3 shipped:
+> `createProductService` / `deleteProductService` / extended `updateProductService`
+> (404 guards), Zod `createProductSchema` + `updateProductSchema`, admin-guarded
+> `POST /products` & `DELETE /products/:id` (+ `validate()` on POST/PATCH), and the
+> `updateProduct` controller cleaned of hand-rolled checks. 46 tests green, build
+> clean. **Remaining: `@openapi` blocks for the new routes (optional), then frontend
+> steps 1.4 (API client) + 1.5 (admin UI).**
+
 **1.1 — RED: service specs first**
 - In `products.service.test.ts` add failing cases (mock `ProductRepository` +
   `CategoryRepository` like the existing tests):
