@@ -1,66 +1,179 @@
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
 @import "tailwindcss";
 
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
-  background-color: #f5deb3;
-  color: #333;
-  min-height: 100vh;
-  scroll-behavior: smooth;
+/* ===========================================================================
+   SoundNest design system — "warm wood, refined"
+   Tokens declared with Tailwind v4 @theme become utilities, e.g.
+   bg-cream, text-bordo, border-gold, font-display, shadow-card, rounded-2xl.
+   =========================================================================== */
+@theme {
+  /* Brand palette */
+  --color-cream: #faf6ef; /* page background */
+  --color-cream-100: #fffdf9; /* near-white: text on dark sections (constant) */
+  --color-cream-200: #f1e9dc; /* light tint: text on dark sections (constant) */
+  --color-muted: #f1e9dc; /* subtle surfaces / borders (flips in dark) */
+  --color-surface: #ffffff; /* cards */
+
+  --color-bordo: #7b2d26; /* primary */
+  --color-bordo-600: #6a251f; /* primary hover */
+  --color-bordo-300: #a8534b; /* primary soft */
+
+  --color-gold: #c8923a; /* accent */
+  --color-gold-600: #a9772a; /* accent hover */
+  --color-gold-200: #ecd9b6; /* accent soft */
+
+  --color-ink: #2b2320; /* main text */
+  --color-ink-soft: #6b5d54; /* secondary text */
+  --color-night: #2b2320; /* always-dark surfaces (navbar, footer, overlays) */
+
+  /* Typography (wired to next/font CSS variables set in layout.tsx) */
+  --font-sans: var(--font-inter), "Helvetica", Arial, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+
+  /* Radius */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+
+  /* Warm-tinted elevation */
+  --shadow-soft: 0 2px 8px rgba(43, 35, 32, 0.08);
+  --shadow-card: 0 6px 22px rgba(43, 35, 32, 0.1);
+  --shadow-card-hover: 0 12px 30px rgba(43, 35, 32, 0.16);
 }
 
-/* Base para los links */
-a {
-  color: inherit;
-  text-decoration: none;
+/* Dark theme — remap the neutral/brand tokens; utilities reference these
+   variables, so bg-cream / text-ink / .card etc. flip automatically.
+   `night` (always-dark surfaces) stays dark in both themes. */
+.dark {
+  /* cream-100 / cream-200 are intentionally NOT overridden: they are used as
+     light text on the always-dark `night` sections and must stay light. */
+  --color-cream: #15110d; /* page background (darkest) */
+  --color-muted: #241c16; /* subtle surfaces / borders / bands */
+  --color-surface: #2b2118; /* cards (most elevated) */
+
+  --color-ink: #f3ece2; /* main text */
+  --color-ink-soft: #c2b3a4; /* secondary text */
+
+  --color-bordo: #cf6f63; /* lightened for readable headings/prices on dark */
+  --color-bordo-600: #c25a4e;
+
+  --color-gold: #dca84e;
+  --color-gold-600: #c8933a;
+
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 6px 22px rgba(0, 0, 0, 0.45);
+  --shadow-card-hover: 0 12px 30px rgba(0, 0, 0, 0.55);
 }
 
-/* Imágenes responsivas */
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    color: var(--color-bordo);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  /* Accessible keyboard focus across the app */
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
 }
 
-/* Botones básicos */
-button {
-  cursor: pointer;
-  transition: all 0.3s ease;
+/* ===========================================================================
+   Reusable primitives — keep component markup lean and consistent.
+   =========================================================================== */
+@layer components {
+  /* Layout */
+  .section {
+    @apply mx-auto w-full max-w-6xl px-6;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5
+      text-sm font-semibold transition-all duration-300
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-bordo text-white shadow-soft hover:bg-bordo-600 hover:shadow-card;
+  }
+  .btn-accent {
+    @apply bg-gold text-ink shadow-soft hover:bg-gold-600 hover:text-white;
+  }
+  .btn-outline {
+    @apply border-2 border-bordo text-bordo hover:bg-bordo hover:text-white;
+  }
+  .btn-ghost {
+    @apply text-ink hover:bg-muted;
+  }
+
+  /* Surfaces */
+  .card {
+    @apply rounded-2xl border border-muted bg-surface shadow-card transition-shadow duration-300;
+  }
+
+  /* Form inputs */
+  .input {
+    @apply w-full rounded-xl border-2 border-muted bg-surface px-3 py-2
+      text-ink transition-colors duration-300
+      focus:border-bordo focus:outline-none focus:ring-2 focus:ring-gold-200;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-ink-soft;
+  }
+
+  /* Badges / pills */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold;
+  }
+  .badge-gold {
+    @apply bg-gold-200 text-gold-600;
+  }
+  .badge-bordo {
+    @apply bg-bordo text-white;
+  }
 }
 
-/* Base para encabezados */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: #800000; /* Bordó para títulos */
-  font-weight: bold;
-}
-
-/* Base de inputs */
-input,
-textarea,
-select {
-  font-family: inherit;
-  font-size: 1rem;
-}
-
-/* Scroll personalizado (opcional) */
+/* Custom scrollbar (matches the palette) */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #8b4513; /* Marrón */
-  border-radius: 4px;
+  background-color: var(--color-bordo);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f5deb3; /* Fondo crema */
+  background: var(--color-muted);
 }

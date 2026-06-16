@@ -5,6 +5,8 @@ import validateRegisterForm from "@/helpers/ValidationRegisterForm";
 import { registerUserService } from "@/services/userServices";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 const RegisterUser: React.FC = () => {
   const [registerData, setRegisterData] = useState<IRegisterDTO>({
@@ -16,6 +18,7 @@ const RegisterUser: React.FC = () => {
     Cpassword: "",
   });
   const [errors, setErrors] = useState<IRegisterErrors>({});
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,140 +37,99 @@ const RegisterUser: React.FC = () => {
       return;
     }
     await toast.promise(registerUserService(registerData), {
-      loading: "Processing registration...",
-      success: "¡Successfully registered! ✅",
-      error: "Error registering your details😣",
+      loading: "Processing registration…",
+      success: "Successfully registered! ✅",
+      error: "Error registering your details 😣",
     });
     router.push("/loginUser");
   };
 
+  const textFields: { name: keyof IRegisterDTO; label: string; type: string }[] =
+    [
+      { name: "name", label: "Name", type: "text" },
+      { name: "phone", label: "Phone", type: "text" },
+      { name: "address", label: "Address", type: "text" },
+      { name: "email", label: "Email", type: "email" },
+    ];
+
+  const passwordFields: { name: keyof IRegisterDTO; label: string }[] = [
+    { name: "password", label: "Password" },
+    { name: "Cpassword", label: "Confirm Password" },
+  ];
+
   return (
-    <div className="flex justify-center items-center min-h-screen  p-6">
+    <div className="flex min-h-screen items-center justify-center p-6">
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="w-full max-w-md bg-white rounded-xl shadow-md p-8 space-y-4"
+        className="card w-full max-w-md space-y-4 p-8"
       >
-        <div className="flex flex-col">
-          <label htmlFor="name" className="text-yellow-700 font-medium mb-1">
-            Name
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={registerData.name}
-            onChange={handleInput}
-            className={`w-full p-2 border-2 rounded-xl transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-800 ${
-              errors.name ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.name && (
-            <p className="text-red-600 text-sm mt-1">{errors.name}</p>
-          )}
-        </div>
+        <h1 className="text-center text-2xl">Create your account</h1>
+        <p className="-mt-2 text-center text-sm text-ink-soft">
+          Join SoundNest in a minute.
+        </p>
 
-        <div className="flex flex-col">
-          <label htmlFor="phone" className="text-yellow-700 font-medium mb-1">
-            Phone
-          </label>
-          <input
-            type="text"
-            name="phone"
-            value={registerData.phone}
-            onChange={handleInput}
-            className={`w-full p-2 border-2 rounded-xl transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-800 ${
-              errors.phone ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.phone && (
-            <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
-          )}
-        </div>
+        {textFields.map(({ name, label, type }) => (
+          <div key={name}>
+            <label htmlFor={name} className="label">
+              {label}
+            </label>
+            <input
+              id={name}
+              type={type}
+              name={name}
+              value={registerData[name]}
+              onChange={handleInput}
+              className={`input ${errors[name] ? "border-red-500" : ""}`}
+            />
+            {errors[name] && (
+              <p className="mt-1 text-sm text-red-600">{errors[name]}</p>
+            )}
+          </div>
+        ))}
 
-        <div className="flex flex-col">
-          <label htmlFor="address" className="text-yellow-700 font-medium mb-1">
-            Address
-          </label>
-          <input
-            type="text"
-            name="address"
-            value={registerData.address}
-            onChange={handleInput}
-            className={`w-full p-2 border-2 rounded-xl transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-800 ${
-              errors.address ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.address && (
-            <p className="text-red-600 text-sm mt-1">{errors.address}</p>
-          )}
-        </div>
+        {passwordFields.map(({ name, label }) => (
+          <div key={name}>
+            <label htmlFor={name} className="label">
+              {label}
+            </label>
+            <div className="relative">
+              <input
+                id={name}
+                type={showPassword ? "text" : "password"}
+                name={name}
+                value={registerData[name]}
+                onChange={handleInput}
+                className={`input pr-10 ${errors[name] ? "border-red-500" : ""}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-ink-soft hover:text-bordo"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {errors[name] && (
+              <p className="mt-1 text-sm text-red-600">{errors[name]}</p>
+            )}
+          </div>
+        ))}
 
-        <div className="flex flex-col">
-          <label htmlFor="email" className="text-yellow-700 font-medium mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={registerData.email}
-            onChange={handleInput}
-            className={`w-full p-2 border-2 rounded-xl transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-800 ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.email && (
-            <p className="text-red-600 text-sm mt-1">{errors.email}</p>
-          )}
-        </div>
-
-        <div className="flex flex-col">
-          <label
-            htmlFor="password"
-            className="text-yellow-700 font-medium mb-1"
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            name="password"
-            value={registerData.password}
-            onChange={handleInput}
-            className={`w-full p-2 border-2 rounded-xl transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-800 ${
-              errors.password ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.password && (
-            <p className="text-red-600 text-sm mt-1">{errors.password}</p>
-          )}
-        </div>
-
-        <div className="flex flex-col">
-          <label
-            htmlFor="Cpassword"
-            className="text-yellow-700 font-medium mb-1"
-          >
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            name="Cpassword"
-            value={registerData.Cpassword}
-            onChange={handleInput}
-            className={`w-full p-2 border-2 rounded-xl transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-800 ${
-              errors.Cpassword ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.Cpassword && (
-            <p className="text-red-600 text-sm mt-1">{errors.Cpassword}</p>
-          )}
-        </div>
-
-        <button
-          type="submit"
-          className="w-full py-3 bg-red-800 text-white font-semibold rounded-xl shadow-md hover:bg-red-900 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Submit
+        <button type="submit" className="btn btn-primary w-full py-3">
+          Sign Up
         </button>
+
+        <p className="text-center text-sm text-ink-soft">
+          Already have an account?{" "}
+          <Link
+            href="/loginUser"
+            className="font-semibold text-bordo hover:underline"
+          >
+            Log In
+          </Link>
+        </p>
       </form>
     </div>
   );

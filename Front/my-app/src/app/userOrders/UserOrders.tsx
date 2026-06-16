@@ -3,61 +3,85 @@ import { IOrder } from "@/interfaces/orderInterface";
 import { getUserOrders } from "@/services/userServices";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  Package,
+  Calendar,
+  ArrowRight,
+  Loader2,
+  ClipboardList,
+} from "lucide-react";
 
 const UserOrders: React.FC = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const fetchOrders = async () => {
       const userStorage = localStorage.getItem("user");
       if (userStorage) {
-        const data = await getUserOrders();
-        setOrders(data);
+        try {
+          const data = await getUserOrders();
+          setOrders(data);
+        } catch (error) {
+          console.error("Error loading orders:", error);
+        }
       }
+      setLoading(false);
     };
     fetchOrders();
   }, []);
 
-  const handleGoToProducts = () => {
-    router.push(`/products`);
-  };
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-gold" />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6  min-h-screen overflow-x-hidden">
-      <h1 className="text-3xl font-bold text-red-800 mb-6 text-center">
-        Mis Órdenes
-      </h1>
+    <div className="section min-h-screen py-10">
+      <h1 className="mb-8 text-center text-3xl md:text-4xl">My Orders</h1>
 
       {orders.length > 0 ? (
-        <div className="space-y-4">
+        <div className="mx-auto flex max-w-2xl flex-col gap-4">
           {orders.map((order) => (
             <div
               key={order.id}
-              className="bg-white p-6 rounded-xl shadow-md transition-transform hover:scale-105 duration-300 max-w-md mx-auto"
+              className="card flex items-center justify-between gap-4 p-5"
             >
-              <p className="text-lg font-semibold text-red-800">
-                Orden N°: {order.id}
-              </p>
-              <p className="text-base text-yellow-700">
-                Status: {order.status}
-              </p>
-              <p className="text-sm text-gray-600">
-                Date: {new Date(order.date).toLocaleDateString()}
-              </p>
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gold-200 text-bordo">
+                  <Package size={22} />
+                </div>
+                <div>
+                  <p className="font-semibold text-ink">Order #{order.id}</p>
+                  <p className="flex items-center gap-1 text-sm text-ink-soft">
+                    <Calendar size={14} />
+                    {new Date(order.date).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              <span className="badge badge-gold capitalize">
+                {order.status}
+              </span>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center">
-          <p className="text-xl text-yellow-700 mb-4">
-            You haven`t placed any orders yet
+        <div className="card mx-auto flex max-w-md flex-col items-center gap-4 p-10 text-center">
+          <ClipboardList size={44} className="text-gold" />
+          <p className="text-lg font-semibold text-bordo">No orders yet</p>
+          <p className="text-sm text-ink-soft">
+            You haven&apos;t placed any orders yet.
           </p>
           <button
-            onClick={handleGoToProducts}
-            className="px-6 py-3 bg-red-800 text-amber-100 font-semibold rounded-xl shadow-md hover:bg-red-900 transition-colors duration-300"
+            onClick={() => router.push("/products")}
+            className="btn btn-primary mt-2"
           >
-            Back to Products
+            Explore Our Products
+            <ArrowRight size={18} />
           </button>
         </div>
       )}

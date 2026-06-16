@@ -44,22 +44,27 @@ const AboutPage: React.FC = () => {
   ];
 
   return (
-    <main className="p-6  min-h-screen">
-      <div className="max-w-4xl mx-auto space-y-12">
+    <main className="section min-h-screen py-12">
+      <div className="mx-auto max-w-4xl space-y-8">
+        <h1 className="text-center text-3xl md:text-4xl">About SoundNest</h1>
         {sections.map(({ Icon, title, content }) => (
           <section
             key={title}
-            className="bg-white p-8 rounded-xl shadow-md flex flex-col items-center text-center transform transition-transform duration-300 hover:scale-105"
+            className="card p-8 transition-transform duration-300 hover:-translate-y-1 hover:shadow-card-hover"
           >
-            <h2 className="flex items-center gap-2 text-3xl font-bold text-red-800 mb-4 underline justify-center">
-              <Icon className="w-7 h-7 text-red-800" />
+            <h2 className="mb-4 flex items-center gap-3 text-2xl">
+              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-gold-200 text-bordo">
+                <Icon className="h-5 w-5" />
+              </span>
               {title}
             </h2>
-            {content.map((line, idx) => (
-              <p key={idx} className="text-lg text-yellow-700 mb-2">
-                {line}
-              </p>
-            ))}
+            <div className="space-y-3">
+              {content.map((line, idx) => (
+                <p key={idx} className="leading-relaxed text-ink-soft">
+                  {line}
+                </p>
+              ))}
+            </div>
           </section>
         ))}
       </div>

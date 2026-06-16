@@ -3,6 +3,7 @@
 import { CardProps } from "@/helpers/mockProducts";
 import { useCart } from "./CartContext";
 import { useRouter } from "next/navigation";
+import { ShoppingCart, Eye } from "lucide-react";
 import toast from "react-hot-toast";
 
 export const Card: React.FC<CardProps> = ({ product }) => {
@@ -10,50 +11,68 @@ export const Card: React.FC<CardProps> = ({ product }) => {
   const router = useRouter();
 
   const remainingStock = getRemainingStock(product.id, product.stock);
+  const isOutOfStock = remainingStock === 0;
+  const formattedPrice = `$${product.price.toLocaleString("en-US")}`;
 
   const handleAddToCart = () => {
-    if (remainingStock === 0) {
+    if (isOutOfStock) {
       toast.error("Not enough stock available");
       return;
     }
-
     addToCart(product.id, product.stock);
   };
 
   return (
-    <div className="bg-amber-50  rounded-xl shadow-md p-4 flex flex-col items-center transition-transform hover:scale-105 hover:shadow-sm duration-300">
-      <img
-        src={product.image}
-        alt={product.name}
-        loading="lazy"
-        decoding="async"
-        className="border-1 border-yellow-700 w-full h-40 object-cover rounded-xl mb-4"
-      />
-      <h2 className="text-xl font-semibold text-red-800 mb-2">
-        {product.name}
-      </h2>
-      <p className="text-base text-gray-800 mb-1">Price: ${product.price}</p>
-      <p className="text-sm text-gray-800 mb-2">{product.category.name}</p>
-      <p className="text-sm text-gray-800 mb-4">
-        Available Stock: {remainingStock}
-      </p>
-      <div className="flex gap-3 mb-4">
-        <button
-          onClick={handleAddToCart}
-          className={`px-4 py-2 rounded-xl font-semibold text-white transition-colors duration-300 ${
-            remainingStock === 0
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-red-800 hover:bg-red-900"
-          }`}
-        >
-          Add to Cart
-        </button>
-        <button
-          onClick={() => router.push(`/products/${product.id}`)}
-          className="bg-yellow-700  text-white px-4 py-2 rounded-xl font-semibold hover:bg-yellow-800 transition-colors duration-300"
-        >
-          View Details
-        </button>
+    <div className="card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        <img
+          src={product.image}
+          alt={product.name}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <span className="badge badge-gold absolute left-3 top-3 shadow-soft">
+          {product.category.name}
+        </span>
+        {isOutOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-night/55">
+            <span className="badge badge-bordo">Out of stock</span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="text-lg leading-snug">{product.name}</h3>
+
+        <div className="mt-2 flex items-center justify-between">
+          <span className="text-xl font-bold text-bordo">{formattedPrice}</span>
+          <span
+            className={`text-xs font-semibold ${
+              isOutOfStock ? "text-bordo" : "text-ink-soft"
+            }`}
+          >
+            {isOutOfStock ? "Unavailable" : `${remainingStock} in stock`}
+          </span>
+        </div>
+
+        <div className="mt-5 flex gap-2">
+          <button
+            onClick={handleAddToCart}
+            disabled={isOutOfStock}
+            className="btn btn-primary flex-1"
+          >
+            <ShoppingCart size={16} />
+            Add
+          </button>
+          <button
+            onClick={() => router.push(`/products/${product.id}`)}
+            className="btn btn-outline"
+          >
+            <Eye size={16} />
+            Details
+          </button>
+        </div>
       </div>
     </div>
   );

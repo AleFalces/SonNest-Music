@@ -27,7 +27,6 @@
 - [Running with Docker](#running-with-docker)
 - [Testing](#testing)
 - [Project structure](#project-structure)
-- [Roadmap](#roadmap)
 - [License](#license)
 
 ---
@@ -193,16 +192,6 @@ SonNest-Music/
         ├── hooks/        # custom hooks
         └── helpers/      # validations + utils
 ```
-
----
-
-## Roadmap
-
-- [ ] Payment gateway integration (Stripe / Mercado Pago)
-- [ ] Admin dashboard for products & orders
-- [ ] Move cart persistence to the backend
-- [ ] Playwright E2E tests
-- [ ] Cloudinary image uploads
 
 ---
 

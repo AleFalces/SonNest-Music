@@ -1,34 +1,34 @@
 "use client";
 
 import { testimonials } from "@/interfaces/testimonialInterfaces";
+import { Quote } from "lucide-react";
 import React from "react";
 
 const TestimonialsSection: React.FC = () => {
   return (
-    <section className="py-16 px-4 " id="testimonios">
-      <h2 className="text-3xl font-bold text-red-800 text-center mb-12">
-        Testimonials
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {testimonials.map((testimonial, index) => (
-          <div
-            key={index}
-            className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center text-center transition-transform duration-300 hover:scale-105 hover:shadow-lg"
-          >
-            <img
-              src={testimonial.avatar}
-              alt={testimonial.name}
-              loading="lazy"
-              decoding="async"
-              className="w-16 h-16 rounded-full mb-4 ring-2 ring-red-800"
-            />
-            <p className="text-gray-800 mb-4">{testimonial.message}</p>
-            <p className="font-semibold text-red-900 mb-1">
-              {testimonial.name}
-            </p>
-            <span className="text-sm text-yellow-700">{testimonial.role}</span>
-          </div>
-        ))}
+    <section className="px-6 py-20" id="testimonios">
+      <div className="section">
+        <h2 className="mb-12 text-center text-3xl md:text-4xl">Testimonials</h2>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {testimonials.map((testimonial, index) => (
+            <div
+              key={index}
+              className="card flex flex-col items-center p-8 text-center transition-transform duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+            >
+              <Quote className="mb-3 text-gold" size={28} />
+              <p className="mb-6 text-ink-soft">{testimonial.message}</p>
+              <img
+                src={testimonial.avatar}
+                alt={testimonial.name}
+                loading="lazy"
+                decoding="async"
+                className="mb-3 h-16 w-16 rounded-full object-cover ring-2 ring-gold"
+              />
+              <p className="font-semibold text-bordo">{testimonial.name}</p>
+              <span className="text-sm text-ink-soft">{testimonial.role}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

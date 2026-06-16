@@ -1,20 +1,62 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Display serif for headings — warm, boutique character.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Readable sans for body copy and UI.
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "SoundNest",
-  description: "Musical Instruments Store",
+  metadataBase: new URL(
+    "https://soundnest-musicstore-git-main-alefalces-projects.vercel.app"
+  ),
+  title: {
+    default: "SoundNest — Musical Instruments Store",
+    template: "%s · SoundNest",
+  },
+  description:
+    "Shop guitars, basses, drums and accessories at SoundNest. Curated gear, fair stock and a smooth checkout.",
+  keywords: [
+    "musical instruments",
+    "guitars",
+    "basses",
+    "drums",
+    "music store",
+    "SoundNest",
+  ],
+  openGraph: {
+    title: "SoundNest — Musical Instruments Store",
+    description:
+      "Curated guitars, basses, drums and accessories with a smooth checkout.",
+    type: "website",
+    siteName: "SoundNest",
+    images: [
+      {
+        url: "/instruments.jpg",
+        width: 1200,
+        height: 630,
+        alt: "SoundNest — musical instruments",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SoundNest — Musical Instruments Store",
+    description:
+      "Curated guitars, basses, drums and accessories with a smooth checkout.",
+    images: ["/instruments.jpg"],
+  },
 };
 
 //componets
@@ -30,9 +72,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Apply the saved theme before paint to avoid a flash of the wrong theme. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex min-h-screen flex-col`}
+        className={`${fraunces.variable} ${inter.variable} antialiased flex min-h-screen flex-col`}
       >
         <Toaster
           position="top-center"

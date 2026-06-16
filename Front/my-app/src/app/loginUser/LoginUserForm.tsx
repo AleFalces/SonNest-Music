@@ -7,6 +7,7 @@ import { ILoginDTO, ILoginFormErrorsDto } from "@/interfaces/userInterface";
 import validatelogin from "@/helpers/ValidationsLoginForm";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 const LoginUserForm: React.FC = () => {
   const [formData, setFormData] = useState<ILoginDTO>({
@@ -14,6 +15,7 @@ const LoginUserForm: React.FC = () => {
     password: "",
   });
   const [errors, setErrors] = useState<ILoginFormErrorsDto>({});
+  const [showPassword, setShowPassword] = useState(false);
   const { loginUser } = useLogin();
   const router = useRouter();
 
@@ -27,33 +29,30 @@ const LoginUserForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const validationErrors = validatelogin(formData);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-
     await toast.promise(loginUser(formData), {
       loading: "Verifying credentials…",
-      success: "¡Welcome back! 👋",
+      success: "Welcome back! 👋",
       error: "Invalid credentials, please try again.",
     });
     router.push("/");
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen  p-6">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8">
-        <h2 className="text-2xl font-semibold text-red-800 mb-6 text-center">
-          Log In
-        </h2>
-        <form onSubmit={handleSubmit} noValidate>
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block mb-1 text-yellow-700 font-medium"
-            >
+    <div className="flex min-h-screen items-center justify-center p-6">
+      <div className="card w-full max-w-md p-8">
+        <h1 className="mb-1 text-center text-2xl">Log In</h1>
+        <p className="mb-6 text-center text-sm text-ink-soft">
+          Welcome back to SoundNest.
+        </p>
+
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          <div>
+            <label htmlFor="email" className="label">
               Email
             </label>
             <input
@@ -62,49 +61,50 @@ const LoginUserForm: React.FC = () => {
               type="email"
               value={formData.email}
               onChange={handleInput}
-              className={`w-full p-2 border-2 rounded-xl transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-800 ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`input ${errors.email ? "border-red-500" : ""}`}
             />
             {errors.email && (
-              <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
             )}
           </div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block mb-1 text-yellow-700 font-medium"
-            >
+          <div>
+            <label htmlFor="password" className="label">
               Password
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleInput}
-              className={`w-full p-2 border-2 rounded-xl transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-800 ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              }`}
-            />
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleInput}
+                className={`input pr-10 ${
+                  errors.password ? "border-red-500" : ""
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-ink-soft hover:text-bordo"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {errors.password && (
-              <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
             )}
           </div>
 
-          <div className="mb-6 text-sm text-gray-700">
-            ¿Don`t have an account?{" "}
-            <Link href="/registerUser" className="text-red-800 hover:underline">
+          <p className="text-sm text-ink-soft">
+            Don&apos;t have an account?{" "}
+            <Link href="/registerUser" className="font-semibold text-bordo hover:underline">
               Sign Up
             </Link>
-          </div>
+          </p>
 
-          <button
-            type="submit"
-            className="w-full py-3 bg-red-800 text-white font-semibold rounded-xl shadow-md hover:bg-red-900 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={false}
-          >
+          <button type="submit" className="btn btn-primary w-full py-3">
             Log In
           </button>
         </form>
