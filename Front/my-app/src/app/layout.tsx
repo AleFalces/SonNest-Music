@@ -18,9 +18,45 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SoundNest — Musical Instruments Store",
+  metadataBase: new URL(
+    "https://soundnest-musicstore-git-main-alefalces-projects.vercel.app"
+  ),
+  title: {
+    default: "SoundNest — Musical Instruments Store",
+    template: "%s · SoundNest",
+  },
   description:
     "Shop guitars, basses, drums and accessories at SoundNest. Curated gear, fair stock and a smooth checkout.",
+  keywords: [
+    "musical instruments",
+    "guitars",
+    "basses",
+    "drums",
+    "music store",
+    "SoundNest",
+  ],
+  openGraph: {
+    title: "SoundNest — Musical Instruments Store",
+    description:
+      "Curated guitars, basses, drums and accessories with a smooth checkout.",
+    type: "website",
+    siteName: "SoundNest",
+    images: [
+      {
+        url: "/instruments.jpg",
+        width: 1200,
+        height: 630,
+        alt: "SoundNest — musical instruments",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SoundNest — Musical Instruments Store",
+    description:
+      "Curated guitars, basses, drums and accessories with a smooth checkout.",
+    images: ["/instruments.jpg"],
+  },
 };
 
 //componets
