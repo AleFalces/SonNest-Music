@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-12 bg-ink text-cream-100">
+    <footer className="mt-12 bg-night text-cream-100">
       <div className="section grid grid-cols-1 gap-10 py-12 md:grid-cols-3">
         {/* Brand */}
         <div>

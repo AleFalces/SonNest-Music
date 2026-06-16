@@ -22,7 +22,7 @@ const HeroSection: React.FC = () => {
       }}
     >
       {/* Real gradient overlay for legibility (the old bg-opacity div did nothing). */}
-      <div className="absolute inset-0 bg-gradient-to-b from-ink/80 via-ink/60 to-ink/85" />
+      <div className="absolute inset-0 bg-gradient-to-b from-night/80 via-night/60 to-night/85" />
 
       <div
         className={`relative max-w-3xl text-center transition-all duration-1000 ${

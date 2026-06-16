@@ -22,6 +22,7 @@
 
   --color-ink: #2b2320; /* main text */
   --color-ink-soft: #6b5d54; /* secondary text */
+  --color-night: #2b2320; /* always-dark surfaces (navbar, footer, overlays) */
 
   /* Typography (wired to next/font CSS variables set in layout.tsx) */
   --font-sans: var(--font-inter), "Helvetica", Arial, sans-serif;

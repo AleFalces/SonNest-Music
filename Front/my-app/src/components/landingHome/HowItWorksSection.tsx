@@ -22,7 +22,7 @@ const steps = [
 
 const HowItWorksSection: React.FC = () => {
   return (
-    <section className="bg-ink px-6 py-20">
+    <section className="bg-night px-6 py-20">
       <div className="section">
         <h2 className="mb-12 text-center text-3xl text-cream-100 md:text-4xl">
           How It Works

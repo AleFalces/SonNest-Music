@@ -59,7 +59,7 @@ const ProductDetail: React.FC = () => {
               className="h-full w-full object-cover"
             />
             {isOutOfStock && (
-              <div className="absolute inset-0 flex items-center justify-center bg-ink/55">
+              <div className="absolute inset-0 flex items-center justify-center bg-night/55">
                 <span className="badge badge-bordo">Out of stock</span>
               </div>
             )}

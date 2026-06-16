@@ -85,7 +85,7 @@ const Navbar: React.FC = () => {
     ) : null;
 
   return (
-    <nav className="sticky top-0 z-50 bg-ink text-cream-100 shadow-card">
+    <nav className="sticky top-0 z-50 bg-night text-cream-100 shadow-card">
       <div className="section flex items-center justify-between py-4">
         {/* Brand */}
         <Link
