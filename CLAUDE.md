@@ -70,6 +70,9 @@ docker compose up --build   # db + backend + frontend
 
 **Backend** (`back/.env`): `PORT`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`,
 `DB_NAME`, `JWT_SECRET`, and for production `DATABASE_URL` (+ optional `DB_SYNCHRONIZE`).
+Payments: `MP_ACCESS_TOKEN` (Mercado Pago **test** access token, `APP_USR-…`/`TEST-…`,
+from "Credenciales de prueba") and `FRONTEND_URL` (base for MP return URLs; defaults
+to `http://localhost:3000`, must be the https Vercel URL in prod for `auto_return`).
 **Frontend** (`Front/my-app/.env.local`): `NEXT_PUBLIC_API_URL` (default `http://localhost:8080`).
 
 `dataSource.ts` picks the production config when `NODE_ENV=production` (uses `DATABASE_URL`),
@@ -88,6 +91,10 @@ categories and products (`helpers/preLoadCategories.ts`, `preLoadProducts.ts`).
 | PATCH  | `/products/:id`   | ✅ admin | update stock/price (`checkLogin` + `isAdmin`)    |
 | GET    | `/categories`     |    ❌    | list categories                                  |
 | POST   | `/orders`         |    ✅    | create order, validates stock                    |
+| POST   | `/products`       | ✅ admin | create product (Zod-validated)                   |
+| DELETE | `/products/:id`   | ✅ admin | delete product                                   |
+| POST   | `/payments/create-preference` | ✅ | Mercado Pago: build a Checkout Pro preference, returns `{ id, init_point }` |
+| GET    | `/payments/confirm?payment_id=` | ✅ | verify payment vs MP; if approved, create the order (idempotent) |
 
 Auth: send the JWT in the `Authorization` header (no `Bearer` prefix — see
 `middlewares/checkLogin.middleware.ts`). Admin-only routes additionally use
