@@ -12,6 +12,12 @@ describe("API integration", () => {
     expect(res.status).toBe(400);
     expect(res.body.message).toBe("Token is required");
   });
+
+  it("PATCH /products/:id returns 400 without a token", async () => {
+    const res = await request(app).patch("/products/1").send({ stock: 5 });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Token is required");
+  });
   it("serves Swagger UI at /api-docs", async () => {
     const res = await request(app).get("/api-docs/").redirects(1);
     expect(res.status).toBe(200);
