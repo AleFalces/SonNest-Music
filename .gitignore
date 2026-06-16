@@ -26,3 +26,6 @@ coverage/
 
 # Local-only Docker Compose overrides
 docker-compose.override.yml
+
+# Claude Code working memory (kept local, not versioned)
+memory/
