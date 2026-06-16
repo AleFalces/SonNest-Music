@@ -4,7 +4,7 @@ import { getAllProducts } from "@/services/productsServices";
 import { IProduct } from "@/helpers/mockProducts";
 import { useCart } from "@/components/CartContext";
 import { useRouter } from "next/navigation";
-import { orderService } from "@/services/orderServices";
+import { createPreference } from "@/services/paymentServices";
 import { confirmAction, showError, showSuccess } from "@/helpers/alerts";
 import { IUser } from "@/interfaces/userInterface";
 import {
@@ -72,17 +72,17 @@ const CartPage = () => {
       text: `You are about to make a purchase for ${formatPrice(
         totalPrice
       )}. Do you wish to continue?`,
-      confirmButtonText: "Yes, confirm",
+      confirmButtonText: "Yes, pay with Mercado Pago",
     });
     if (!confirmed) return;
 
     try {
-      await orderService({ products: cartIds });
-      showSuccess("Purchase successful");
-      clearCart();
-      router.push("/products");
+      const preference = await createPreference(cartIds);
+      // Redirect the browser to Mercado Pago's hosted checkout. The cart is
+      // cleared later, on the success page, only once the payment is confirmed.
+      window.location.href = preference.init_point;
     } catch (error) {
-      showError("Error processing the purchase");
+      showError("Error starting the payment");
       console.error(error);
     }
   };
