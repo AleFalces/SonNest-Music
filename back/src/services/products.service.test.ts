@@ -102,6 +102,34 @@ describe("updateProductService", () => {
     expect(result.price).toBe(100);
   });
 
+  it("updates the descriptive fields too (name, description, image, category)", async () => {
+    findOneBy.mockResolvedValue({
+      id: 1,
+      name: "Old",
+      description: "Old desc",
+      image: "old.jpg",
+      categoryId: 1,
+      stock: 10,
+      price: 100,
+    });
+    save.mockImplementation(async (p) => p);
+
+    const result = await updateProductService(1, {
+      name: "New",
+      description: "New desc",
+      image: "new.jpg",
+      categoryId: 3,
+    });
+
+    expect(result.name).toBe("New");
+    expect(result.description).toBe("New desc");
+    expect(result.image).toBe("new.jpg");
+    expect(result.categoryId).toBe(3);
+    // untouched fields stay
+    expect(result.stock).toBe(10);
+    expect(result.price).toBe(100);
+  });
+
   it("throws a 404 ClientError when the product is missing", async () => {
     findOneBy.mockResolvedValue(null);
     await expect(updateProductService(99, { stock: 1 })).rejects.toMatchObject({

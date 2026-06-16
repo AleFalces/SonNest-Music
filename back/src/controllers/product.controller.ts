@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { catchedController } from "../utils/catchedController";
 import {
+  createProductService,
+  deleteProductService,
   getProductsByIdService,
   getProductsService,
   updateProductService,
@@ -30,26 +32,44 @@ export const getProductsById = catchedController(
   }
 );
 
+export const createProduct = catchedController(
+  async (req: Request, res: Response) => {
+    const { name, description, price, stock, image, categoryId } = req.body;
+    const product = await createProductService({
+      name,
+      description,
+      price,
+      stock,
+      image,
+      categoryId,
+    });
+    res.status(201).json(product);
+  }
+);
+
+export const deleteProduct = catchedController(
+  async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) throw new ClientError("Invalid product id", 400);
+    await deleteProductService(id);
+    res.status(204).send();
+  }
+);
+
 export const updateProduct = catchedController(
   async (req: Request, res: Response) => {
     const id = Number(req.params.id);
     if (Number.isNaN(id)) throw new ClientError("Invalid product id", 400);
 
-    const { stock, price } = req.body;
-
-    if (stock === undefined && price === undefined)
-      throw new ClientError("Provide stock or price to update", 400);
-
-    if (
-      stock !== undefined &&
-      (typeof stock !== "number" || !Number.isInteger(stock) || stock < 0)
-    )
-      throw new ClientError("stock must be a non-negative integer", 400);
-
-    if (price !== undefined && (typeof price !== "number" || price < 0))
-      throw new ClientError("price must be a non-negative number", 400);
-
-    const updated: Product = await updateProductService(id, { stock, price });
+    const { name, description, price, stock, image, categoryId } = req.body;
+    const updated: Product = await updateProductService(id, {
+      name,
+      description,
+      price,
+      stock,
+      image,
+      categoryId,
+    });
     res.json(updated);
   }
 );

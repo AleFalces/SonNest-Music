@@ -1,11 +1,18 @@
 import { Router } from "express";
 import {
+  createProduct,
+  deleteProduct,
   getProducts,
   getProductsById,
   updateProduct,
 } from "../controllers/product.controller";
 import checkLogin from "../middlewares/checkLogin.middleware";
 import isAdmin from "../middlewares/isAdmin.middleware";
+import { validate } from "../middlewares/validate.middleware";
+import {
+  createProductSchema,
+  updateProductSchema,
+} from "../schemas/product.schema";
 
 const router = Router();
 
@@ -55,6 +62,8 @@ const router = Router();
  *                 totalPages: { type: integer, example: 3 }
  */
 router.get("/", getProducts);
+
+router.post("/", checkLogin, isAdmin, validate(createProductSchema), createProduct);
 
 /**
  * @openapi
@@ -134,6 +143,8 @@ router.get("/:id", getProductsById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.patch("/:id", checkLogin, isAdmin, updateProduct);
+router.patch("/:id", checkLogin, isAdmin, validate(updateProductSchema), updateProduct);
+
+router.delete("/:id", checkLogin, isAdmin, deleteProduct);
 
 export default router;
