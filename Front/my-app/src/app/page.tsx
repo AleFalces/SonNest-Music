@@ -3,15 +3,24 @@ import FeaturesSection from "@/components/landingHome/FeaturesSection";
 import HeroSection from "@/components/landingHome/HeroSection";
 import HowItWorksSection from "@/components/landingHome/HowItWorksSection";
 import TestimonialsSection from "@/components/landingHome/TestimonialsSection";
+import Reveal from "@/components/Reveal";
 
 export default function Home() {
   return (
-    <main className="w-full px-4 sm:px-6 lg:px-8 flex flex-col gap-12">
+    <main className="w-full">
       <HeroSection />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <TestimonialsSection />
-      <CallToActionSection />
+      <Reveal>
+        <FeaturesSection />
+      </Reveal>
+      <Reveal>
+        <HowItWorksSection />
+      </Reveal>
+      <Reveal>
+        <TestimonialsSection />
+      </Reveal>
+      <Reveal>
+        <CallToActionSection />
+      </Reveal>
     </main>
   );
 }
