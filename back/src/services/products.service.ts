@@ -9,10 +9,53 @@ export const checkProductExists = async (itemId: number): Promise<boolean> => {
   return !!item;
 };
 
-export const getProductsService = async (): Promise<Product[]> => {
-  return await ProductRepository.find({
-    relations: ["category"],
-  });
+export interface ProductQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+}
+
+export interface PaginatedProducts {
+  data: Product[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export const getProductsService = async (
+  opts: ProductQuery = {}
+): Promise<PaginatedProducts> => {
+  const page = Math.max(1, opts.page || 1);
+  const limit = Math.min(Math.max(1, opts.limit || 9), 100);
+
+  const qb = ProductRepository.createQueryBuilder("product").leftJoinAndSelect(
+    "product.category",
+    "category"
+  );
+
+  if (opts.search)
+    qb.andWhere("LOWER(product.name) LIKE LOWER(:search)", {
+      search: `%${opts.search}%`,
+    });
+
+  if (opts.category && opts.category !== "all")
+    qb.andWhere("category.name = :category", { category: opts.category });
+
+  qb.orderBy("product.id", "ASC")
+    .skip((page - 1) * limit)
+    .take(limit);
+
+  const [data, total] = await qb.getManyAndCount();
+
+  return {
+    data,
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
 };
 
 export const getProductsByIdService = async (
