@@ -1,6 +1,27 @@
 import { Product } from "../entities/Product";
 import { ProductRepository } from "../repositories/product.repository";
+import { CategoryRepository } from "../repositories/category.repository";
 import { ClientError } from "../utils/errors";
+
+export interface CreateProductInput {
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  image: string;
+  categoryId: number;
+}
+
+export const createProductService = async (
+  data: CreateProductInput
+): Promise<Product> => {
+  const category = await CategoryRepository.findOneBy({ id: data.categoryId });
+  if (!category) throw new ClientError("Category not found", 404);
+
+  const product = ProductRepository.create(data);
+  await ProductRepository.save(product);
+  return product;
+};
 
 export const checkProductExists = async (itemId: number): Promise<boolean> => {
   const item: Product | null = await ProductRepository.findOneBy({

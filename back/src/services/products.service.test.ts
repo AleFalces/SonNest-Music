@@ -1,18 +1,32 @@
-import { getProductsService, updateProductService } from "./products.service";
+import {
+  createProductService,
+  getProductsService,
+  updateProductService,
+} from "./products.service";
 import { ClientError } from "../utils/errors";
 import { ProductRepository } from "../repositories/product.repository";
+import { CategoryRepository } from "../repositories/category.repository";
 
 jest.mock("../repositories/product.repository", () => ({
   ProductRepository: {
     findOneBy: jest.fn(),
     save: jest.fn(),
+    create: jest.fn(),
     createQueryBuilder: jest.fn(),
+  },
+}));
+
+jest.mock("../repositories/category.repository", () => ({
+  CategoryRepository: {
+    findOneBy: jest.fn(),
   },
 }));
 
 const findOneBy = ProductRepository.findOneBy as jest.Mock;
 const save = ProductRepository.save as jest.Mock;
+const create = ProductRepository.create as jest.Mock;
 const createQueryBuilder = ProductRepository.createQueryBuilder as jest.Mock;
+const categoryFindOneBy = CategoryRepository.findOneBy as jest.Mock;
 
 describe("getProductsService (pagination)", () => {
   const makeQb = (rows: any[], total: number) => ({
@@ -93,5 +107,35 @@ describe("updateProductService", () => {
     await expect(updateProductService(99, { stock: 1 })).rejects.toBeInstanceOf(
       ClientError
     );
+  });
+});
+
+describe("createProductService", () => {
+  const validData = {
+    name: "Fender Stratocaster",
+    description: "Classic electric guitar",
+    price: 1200,
+    stock: 10,
+    image: "https://example.com/strat.jpg",
+    categoryId: 2,
+  };
+
+  beforeEach(() => {
+    categoryFindOneBy.mockReset();
+    create.mockReset();
+    save.mockReset();
+  });
+
+  it("creates and saves a product when the category exists", async () => {
+    categoryFindOneBy.mockResolvedValue({ id: 2, name: "Guitars" });
+    create.mockImplementation((data) => ({ id: 1, ...data }));
+    save.mockImplementation(async (p) => p);
+
+    const result = await createProductService(validData);
+
+    expect(categoryFindOneBy).toHaveBeenCalledWith({ id: 2 });
+    expect(create).toHaveBeenCalledWith(validData);
+    expect(save).toHaveBeenCalled();
+    expect(result).toMatchObject({ id: 1, name: "Fender Stratocaster" });
   });
 });
