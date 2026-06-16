@@ -19,3 +19,11 @@ export const getProductsById = async (id: string) => {
     handleAxiosError(error, "Error to get products");
   }
 };
+
+export const updateProduct = async (
+  id: number,
+  data: { stock?: number; price?: number }
+) => {
+  const response = await apiServices.patch(`${path}${id}`, data);
+  return response.data;
+};
