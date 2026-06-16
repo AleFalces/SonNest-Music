@@ -12,3 +12,8 @@ export const JWT_SECRET: string = process.env.JWT_SECRET || "secret";
 // Mercado Pago access token (use the TEST token, starts with "TEST-").
 // No default on purpose: a payment secret must come from the environment.
 export const MP_ACCESS_TOKEN: string = process.env.MP_ACCESS_TOKEN || "";
+
+// Public base URL of the frontend, used to build Mercado Pago's return URLs
+// (success / pending / failure). Defaults to the local Next.js dev server.
+export const FRONTEND_URL: string =
+  process.env.FRONTEND_URL || "http://localhost:3000";

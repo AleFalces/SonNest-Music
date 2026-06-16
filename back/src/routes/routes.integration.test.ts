@@ -28,6 +28,14 @@ describe("API integration", () => {
     expect(res.status).toBe(400);
     expect(res.body.message).toBe("Token is required");
   });
+  it("POST /payments/create-preference returns 400 without a token", async () => {
+    const res = await request(app)
+      .post("/payments/create-preference")
+      .send({ products: [1] });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Token is required");
+  });
+
   it("serves Swagger UI at /api-docs", async () => {
     const res = await request(app).get("/api-docs/").redirects(1);
     expect(res.status).toBe(200);
