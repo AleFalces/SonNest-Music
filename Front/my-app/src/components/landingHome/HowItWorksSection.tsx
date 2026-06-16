@@ -2,47 +2,47 @@
 
 import { Search, ShoppingCart, CheckCircle } from "lucide-react";
 
+const steps = [
+  {
+    icon: Search,
+    title: "Explore Our Products",
+    text: "Browse through a wide variety of high-quality items.",
+  },
+  {
+    icon: ShoppingCart,
+    title: "Add to Cart",
+    text: "Select your products and add them to the cart.",
+  },
+  {
+    icon: CheckCircle,
+    title: "Buy and Receive",
+    text: "Complete your purchase and wait for your products to arrive.",
+  },
+];
+
 const HowItWorksSection: React.FC = () => {
   return (
-    <section className="py-16 px-4 bg-gray-900">
-      <h2 className="text-3xl font-bold text-white text-center mb-12">
-        How It Works
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center transition-transform duration-300 hover:scale-105">
-          <div className="text-red-800 mb-4">
-            <Search size={48} />
-          </div>
-          <h3 className="text-xl font-semibold text-red-800 mb-2">
-            Explore Our Products
-          </h3>
-          <p className="text-gray-800 text-center">
-            Browse through a wide variety of high-quality items.
-          </p>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center transition-transform duration-300 hover:scale-105">
-          <div className="text-red-800 mb-4">
-            <ShoppingCart size={48} />
-          </div>
-          <h3 className="text-xl font-semibold text-red-800 mb-2">
-            Add to Cart
-          </h3>
-          <p className="text-gray-800 text-center">
-            Select your products and add them to the cart.
-          </p>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-md flex flex-col items-center transition-transform duration-300 hover:scale-105">
-          <div className="text-red-800 mb-4">
-            <CheckCircle size={48} />
-          </div>
-          <h3 className="text-xl font-semibold text-red-800 mb-2">
-            Buy and Receive
-          </h3>
-          <p className="text-gray-800 text-center">
-            Complete your purchase and wait for your products to arrive.
-          </p>
+    <section className="bg-ink px-6 py-20">
+      <div className="section">
+        <h2 className="mb-12 text-center text-3xl text-cream-100 md:text-4xl">
+          How It Works
+        </h2>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          {steps.map(({ icon: Icon, title, text }, index) => (
+            <div
+              key={title}
+              className="card relative flex flex-col items-center p-8 text-center transition-transform duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+            >
+              <span className="absolute right-4 top-4 font-display text-3xl font-bold text-cream-200">
+                {index + 1}
+              </span>
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gold-200 text-bordo">
+                <Icon size={30} />
+              </div>
+              <h3 className="mb-2 text-xl">{title}</h3>
+              <p className="text-ink-soft">{text}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

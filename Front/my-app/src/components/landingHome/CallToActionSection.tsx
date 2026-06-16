@@ -1,32 +1,32 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Rocket, UserPlus } from "lucide-react";
+import Link from "next/link";
+import { Rocket, UserPlus, ArrowRight } from "lucide-react";
 
 const CallToActionSection: React.FC = () => {
-  const router = useRouter();
-
   return (
-    <section className="py-12 px-4 text-center bg-red-800">
-      <h2 className="text-3xl font-bold text-white flex items-center justify-center gap-2 mb-4">
-        <Rocket size={24} />
-        Ready to get started?
-      </h2>
-      <p className="text-amber-200 mb-8">Discover our products right now.</p>
-      <div className="flex flex-col sm:flex-row justify-center gap-4">
-        <button
-          className="bg-amber-100 text-red-800 px-6 py-3 rounded-xl font-semibold transition-colors duration-300 hover:bg-amber-200"
-          onClick={() => router.push("/products")}
-        >
-          View Products
-        </button>
-        <button
-          className="bg-amber-100 text-red-800 px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors duration-300 hover:bg-amber-200"
-          onClick={() => router.push("/registerUser")}
-        >
-          <UserPlus size={20} />
-          Sign Up Now
-        </button>
+    <section className="bg-bordo px-6 py-16 text-center">
+      <div className="section">
+        <h2 className="flex items-center justify-center gap-2 text-3xl text-cream-100 md:text-4xl">
+          <Rocket size={28} />
+          Ready to get started?
+        </h2>
+        <p className="mx-auto mt-4 max-w-md text-cream-200/80">
+          Discover our products right now and find your next instrument.
+        </p>
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Link href="/products" className="btn btn-accent px-6 py-3 text-base">
+            View Products
+            <ArrowRight size={18} />
+          </Link>
+          <Link
+            href="/registerUser"
+            className="btn px-6 py-3 text-base text-cream-100 ring-1 ring-cream-100/40 hover:bg-cream-100/10"
+          >
+            <UserPlus size={18} />
+            Sign Up Now
+          </Link>
+        </div>
       </div>
     </section>
   );
