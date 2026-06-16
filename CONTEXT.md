@@ -718,17 +718,19 @@ git push -u origin upgrade-soundnest
 
 ## 6. Prioritised roadmap (post-UI overhaul)
 
-> Status: the quality playbook (§2) and the full frontend UI overhaul (warm-wood
-> design system, dark mode, etc.) are done and **merged to `main`**.
-> **P2–P4 below are done on branch `admin-stock-panel`** (admin stock panel, order
-> detail, products pagination/search + categories endpoint, Zod validation; 24 tests)
-> — pushed but **not yet merged to `main`**. P0/P1 are still open (deploy + cleanup).
+> Status (updated 2026-06-16): the quality playbook (§2), the full frontend UI
+> overhaul, **P2–P4** (admin stock panel + CRUD, order detail, pagination/search,
+> Zod validation) and **Feature 2 — Mercado Pago Checkout Pro** are all done and
+> **merged to `main`**. Backend suite is at **57 tests**.
+> **P0 (deploy) and P1 (cleanup) are still open.** Remaining feature work:
+> Feature 2.5 (payments docs), Feature 4 (cart → backend), payment webhooks, P5.
 > Work top-down and tick items off as they ship. Rationale for the order: make
 > production work first, then close cheap loops, then features by impact/effort.
 
 ### P0 — Production must actually work (blocks everything)
 - [ ] **Render** on **Node 20** + envs (`DATABASE_URL`, `JWT_SECRET`); **do NOT** set
-      `DB_SYNCHRONIZE=true` in prod.
+      `DB_SYNCHRONIZE=true` in prod. Also set **`MP_ACCESS_TOKEN`** and **`FRONTEND_URL`**
+      (the https Vercel URL) so Mercado Pago payments + `auto_return` work in prod.
 - [ ] **Vercel** `NEXT_PUBLIC_API_URL` points to the Render backend URL (not
       `localhost`) — easiest thing to forget; without it the deployed front has no data.
 - [ ] **Prod smoke test**: front loads, `/products` returns data from Render,
@@ -768,7 +770,11 @@ in `back/src/entities/User.ts`, so the auth groundwork existed.
       already exercised via `routes.integration.test.ts`) and several auth middlewares.
 
 ### P5 — Bigger / flashier
-- [ ] **Stripe checkout** (test mode).
+- [x] **Checkout (test mode)** — done with **Mercado Pago Checkout Pro** instead of
+      Stripe (LATAM job market). See Feature 2 below.
+- [ ] **Payment webhooks** (`notification_url`) + a tunnel (ngrok) so order creation
+      doesn't depend on the browser returning. Also fixes the localhost "no return
+      button / no auto_return" issue. Good portfolio feature.
 - [ ] **Cloudinary** image uploads · move cart persistence from `localStorage` to the backend.
 
 ---
@@ -877,7 +883,33 @@ Verify: `cd back && npm test && npm run build`; `cd Front/my-app && npm run buil
 
 ---
 
-### Feature 2 — Stripe checkout (test mode)
+### Feature 2 — Checkout (test mode) ✅ DONE with Mercado Pago
+
+> **✅ DONE & merged to `main` (2026-06-16).** Implemented with **Mercado Pago
+> Checkout Pro** (not Stripe — chosen for the LATAM job market). Backend TDD,
+> 57 tests. Steps shipped:
+> - **2.1** `mercadopago` SDK + `config/mercadopago.ts` client; `MP_ACCESS_TOKEN`
+>   + `FRONTEND_URL` in `envs.ts`.
+> - **2.2** `createPreferenceService` → `POST /payments/create-preference`
+>   (`checkLogin` + `validate(orderSchema)`); items + `metadata` (user_id,
+>   product_ids) + three `back_urls`.
+> - **2.3** `confirmPaymentService` → `GET /payments/confirm`; verifies status vs
+>   MP, creates the order from metadata, idempotent via nullable `Order.paymentId`.
+>   `auto_return` only when `FRONTEND_URL` is https (MP rejects it on localhost).
+> - **2.4** Frontend: `paymentServices.ts`, cart redirects to MP,
+>   `/checkout/success|pending|failure` pages. Smoke-tested end-to-end in sandbox.
+>
+> **Still pending:** **2.5** docs (README + Swagger `@openapi` for the two routes);
+> guard the double `confirm` call (React StrictMode); webhooks (see P5).
+>
+> Local test gotchas (sandbox): buyer must be a **test user** (else "una de las
+> partes es de prueba"); on localhost MP shows no return button and no
+> `auto_return`, so confirm by opening
+> `/checkout/success?payment_id=<id>` manually (a tunnel/ngrok fixes this).
+
+The original Stripe-based plan is kept below for reference only.
+
+### Feature 2 (original Stripe plan — superseded, kept for reference)
 
 Goal: from the cart, start a **Stripe Checkout Session**; on success create the
 order (reusing `createOrderService`) and clear the cart. Test mode only.
