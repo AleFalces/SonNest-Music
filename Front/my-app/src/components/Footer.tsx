@@ -1,39 +1,53 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Mail, Linkedin, ChevronDown, ChevronUp } from "lucide-react";
 
 const Footer: React.FC = () => {
   const [showFrontend, setShowFrontend] = useState(false);
   const [showBackend, setShowBackend] = useState(false);
 
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="bg-gray-900 text-white py-8 mt-8">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 px-6">
+    <footer className="mt-12 bg-ink text-cream-100">
+      <div className="section grid grid-cols-1 gap-10 py-12 md:grid-cols-3">
+        {/* Brand */}
         <div>
-          <h2 className="text-xl text-amber-100 font-semibold mb-4">
+          <Link
+            href="/"
+            className="font-display text-2xl font-bold tracking-tight text-cream-100"
+          >
+            Sound<span className="text-gold">Nest</span>
+          </Link>
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-cream-200/70">
+            A boutique store for musical instruments — crafted gear, fair stock,
+            and a smooth checkout.
+          </p>
+        </div>
+
+        {/* Technologies */}
+        <div>
+          <h2 className="mb-4 text-base font-semibold text-gold">
             Technologies Used
           </h2>
-
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div>
               <button
-                onClick={() => setShowFrontend(!showFrontend)}
-                className="flex items-center gap-2 hover:text-amber-200 transition-colors focus:outline-none"
+                onClick={() => setShowFrontend((v) => !v)}
+                className="flex items-center gap-2 text-sm text-cream-100 transition-colors hover:text-gold"
+                aria-expanded={showFrontend}
               >
                 <span>Front-end</span>
-                {showFrontend ? (
-                  <ChevronUp size={18} />
-                ) : (
-                  <ChevronDown size={18} />
-                )}
+                {showFrontend ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
               {showFrontend && (
-                <ul className="list-disc ml-6 mt-2 text-gray-300 text-sm space-y-1">
+                <ul className="ml-4 mt-2 space-y-1 text-sm text-cream-200/70">
                   <li>TypeScript</li>
                   <li>Next.js</li>
                   <li>Tailwind CSS</li>
-                  <li>SweetAlert2</li>
+                  <li>React Hot Toast</li>
                   <li>Lucide React</li>
                 </ul>
               )}
@@ -41,18 +55,15 @@ const Footer: React.FC = () => {
 
             <div>
               <button
-                onClick={() => setShowBackend(!showBackend)}
-                className="flex items-center gap-2 hover:text-amber-200 transition-colors focus:outline-none"
+                onClick={() => setShowBackend((v) => !v)}
+                className="flex items-center gap-2 text-sm text-cream-100 transition-colors hover:text-gold"
+                aria-expanded={showBackend}
               >
                 <span>Back-end</span>
-                {showBackend ? (
-                  <ChevronUp size={18} />
-                ) : (
-                  <ChevronDown size={18} />
-                )}
+                {showBackend ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
               {showBackend && (
-                <ul className="list-disc ml-6 mt-2 text-gray-300 text-sm space-y-1">
+                <ul className="ml-4 mt-2 space-y-1 text-sm text-cream-200/70">
                   <li>Express</li>
                   <li>TypeScript</li>
                   <li>PostgreSQL</li>
@@ -64,27 +75,39 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Contacto */}
+        {/* Contact */}
         <div>
-          <h2 className="text-xl font-semibold text-amber-100  mb-4">
-            Contact
-          </h2>
-          <ul className="space-y-2 text-gray-300 text-sm">
-            <li className="flex items-center gap-2 hover:text-amber-200">
-              <Linkedin size={16} />
+          <h2 className="mb-4 text-base font-semibold text-gold">Contact</h2>
+          <ul className="space-y-3 text-sm">
+            <li>
               <a
                 href="https://www.linkedin.com/in/alexis-falces-95b892252/"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="flex items-center gap-2 text-cream-100 transition-colors hover:text-gold"
               >
-                Alexis Falces
+                <Linkedin size={16} />
+                <span>Alexis Falces</span>
               </a>
             </li>
-            <li className="flex items-center gap-2 hover:text-amber-200">
-              <Mail size={16} />
-              <a href="mailto:alefalces@gmail.com">alefalces@gmail.com</a>
+            <li>
+              <a
+                href="mailto:alefalces@gmail.com"
+                className="flex items-center gap-2 text-cream-100 transition-colors hover:text-gold"
+              >
+                <Mail size={16} />
+                <span>alefalces@gmail.com</span>
+              </a>
             </li>
           </ul>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="border-t border-white/10">
+        <div className="section flex flex-col items-center justify-between gap-2 py-5 text-xs text-cream-200/60 sm:flex-row">
+          <span>© {year} SoundNest. All rights reserved.</span>
+          <span>Built by Alexis Falces</span>
         </div>
       </div>
     </footer>
