@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthContext";
+import { useCart } from "./CartContext";
 import { confirmAction, showSuccess } from "@/helpers/alerts";
 import {
   ShoppingCart,
@@ -13,13 +15,29 @@ import {
   Package,
   ChevronDown,
   ChevronUp,
+  Menu,
+  X,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
+const navLinks = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/products", label: "Products", icon: Package },
+  { href: "/about", label: "About us", icon: Info },
+];
+
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
+  const { cartIds } = useCart();
+  const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const cartCount = cartIds.length;
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   const handleLogout = async () => {
     const confirmed = await confirmAction({
@@ -32,9 +50,18 @@ const Navbar: React.FC = () => {
       logout();
       window.dispatchEvent(new StorageEvent("storage", { key: "user" }));
       showSuccess("Session successfully closed");
+      setIsDropdownOpen(false);
+      setIsMobileOpen(false);
     }
   };
 
+  // Close menus when navigating to another route.
+  useEffect(() => {
+    setIsMobileOpen(false);
+    setIsDropdownOpen(false);
+  }, [pathname]);
+
+  // Close the user dropdown when clicking outside of it.
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -44,96 +71,171 @@ const Navbar: React.FC = () => {
         setIsDropdownOpen(false);
       }
     };
-
     if (isDropdownOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
     }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isDropdownOpen]);
 
+  const CartBadge = () =>
+    cartCount > 0 ? (
+      <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[10px] font-bold text-ink">
+        {cartCount}
+      </span>
+    ) : null;
+
   return (
-    <nav className="bg-gray-900 text-white shadow-lg z-50 relative">
-      <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between py-4 px-6 relative">
+    <nav className="sticky top-0 z-50 bg-ink text-cream-100 shadow-card">
+      <div className="section flex items-center justify-between py-4">
+        {/* Brand */}
         <Link
           href="/"
-          className="text-2xl font-bold hover:text-amber-200 transition-colors duration-300"
+          className="font-display text-2xl font-bold tracking-tight text-cream-100"
         >
-          SoundNest
+          Sound<span className="text-gold">Nest</span>
         </Link>
 
-        <div className="flex flex-wrap items-center gap-6 text-sm max-w-full relative">
-          <Link
-            href="/"
-            className="flex items-center space-x-1 hover:text-amber-200 transition-colors duration-300"
-          >
-            <Home size={18} /> <span>Home</span>
-          </Link>
-          <Link
-            href="/products"
-            className="flex items-center space-x-1 hover:text-amber-200 transition-colors duration-300"
-          >
-            <Package size={18} /> <span>Products</span>
-          </Link>
-          <Link
-            href="/about"
-            className="flex items-center space-x-1 hover:text-amber-200 transition-colors duration-300"
-          >
-            <Info size={18} /> <span>About us</span>
-          </Link>
+        {/* Desktop navigation */}
+        <div className="hidden items-center gap-1 md:flex">
+          {navLinks.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm transition-colors duration-300 ${
+                isActive(href)
+                  ? "bg-white/10 text-gold"
+                  : "text-cream-100 hover:bg-white/5 hover:text-gold"
+              }`}
+            >
+              <Icon size={18} />
+              <span>{label}</span>
+            </Link>
+          ))}
+
           <Link
             href="/cart"
-            className="flex items-center space-x-1 hover:text-amber-200 transition-colors duration-300"
+            className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm transition-colors duration-300 ${
+              isActive("/cart")
+                ? "bg-white/10 text-gold"
+                : "text-cream-100 hover:bg-white/5 hover:text-gold"
+            }`}
           >
-            <ShoppingCart size={18} /> <span>Shopping Cart</span>
+            <span className="relative">
+              <ShoppingCart size={18} />
+              <CartBadge />
+            </span>
+            <span>Cart</span>
           </Link>
 
           {user ? (
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative ml-1" ref={dropdownRef}>
               <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center space-x-1 hover:text-amber-200 transition-colors duration-300 focus:outline-none"
+                onClick={() => setIsDropdownOpen((v) => !v)}
+                className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-cream-100 transition-colors duration-300 hover:bg-white/5 hover:text-gold"
               >
                 <User size={18} />
                 <span>{user.name}</span>
                 {isDropdownOpen ? (
-                  <ChevronUp size={18} />
+                  <ChevronUp size={16} />
                 ) : (
-                  <ChevronDown size={18} />
+                  <ChevronDown size={16} />
                 )}
               </button>
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-gray-800 rounded-lg shadow-lg overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-44 overflow-hidden rounded-xl bg-surface text-ink shadow-card-hover">
                   <Link
                     href="/userOrders"
-                    className="flex items-center px-4 py-2 hover:bg-gray-700 text-sm transition-colors duration-300"
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-cream-200"
                   >
-                    <Package size={16} />{" "}
-                    <span className="ml-2">My Orders</span>
+                    <Package size={16} />
+                    <span>My Orders</span>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center w-full px-4 py-2 hover:bg-gray-700 text-left text-sm transition-colors duration-300"
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-bordo transition-colors hover:bg-cream-200"
                   >
-                    <LogOut size={16} /> <span className="ml-2">Logout</span>
+                    <LogOut size={16} />
+                    <span>Logout</span>
                   </button>
                 </div>
               )}
             </div>
           ) : (
-            <Link
-              href="/loginUser"
-              className="flex items-center space-x-1 hover:text-amber-200 transition-colors duration-300"
-            >
-              <LogIn size={18} /> <span>Login</span>
+            <Link href="/loginUser" className="btn btn-accent ml-2">
+              <LogIn size={18} />
+              <span>Login</span>
             </Link>
           )}
         </div>
+
+        {/* Mobile: cart + hamburger */}
+        <div className="flex items-center gap-1 md:hidden">
+          <Link href="/cart" className="relative p-2 text-cream-100">
+            <ShoppingCart size={22} />
+            <CartBadge />
+          </Link>
+          <button
+            onClick={() => setIsMobileOpen((v) => !v)}
+            aria-label="Toggle navigation menu"
+            aria-expanded={isMobileOpen}
+            className="p-2 text-cream-100"
+          >
+            {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile menu */}
+      {isMobileOpen && (
+        <div className="border-t border-white/10 md:hidden">
+          <div className="section flex flex-col gap-1 py-3">
+            {navLinks.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors ${
+                  isActive(href)
+                    ? "bg-white/10 text-gold"
+                    : "text-cream-100 hover:bg-white/5"
+                }`}
+              >
+                <Icon size={18} />
+                <span>{label}</span>
+              </Link>
+            ))}
+
+            {user ? (
+              <>
+                <Link
+                  href="/userOrders"
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-cream-100 hover:bg-white/5"
+                >
+                  <Package size={18} />
+                  <span>My Orders</span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm text-gold hover:bg-white/5"
+                >
+                  <LogOut size={18} />
+                  <span>Logout</span>
+                </button>
+                <div className="px-3 pt-1 text-xs text-cream-200/70">
+                  Signed in as {user.name}
+                </div>
+              </>
+            ) : (
+              <Link
+                href="/loginUser"
+                className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-gold hover:bg-white/5"
+              >
+                <LogIn size={18} />
+                <span>Login</span>
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
