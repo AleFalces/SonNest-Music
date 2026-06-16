@@ -94,15 +94,21 @@ export const getProductsByIdService = async (
   });
 };
 
+export type UpdateProductInput = Partial<CreateProductInput>;
+
 export const updateProductService = async (
   id: number,
-  data: { stock?: number; price?: number }
+  data: UpdateProductInput
 ): Promise<Product> => {
   const product = await ProductRepository.findOneBy({ id });
   if (!product) throw new ClientError("Product not found", 404);
 
-  if (data.stock !== undefined) product.stock = data.stock;
+  if (data.name !== undefined) product.name = data.name;
+  if (data.description !== undefined) product.description = data.description;
   if (data.price !== undefined) product.price = data.price;
+  if (data.stock !== undefined) product.stock = data.stock;
+  if (data.image !== undefined) product.image = data.image;
+  if (data.categoryId !== undefined) product.categoryId = data.categoryId;
 
   await ProductRepository.save(product);
   return product;

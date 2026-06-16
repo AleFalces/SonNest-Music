@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { catchedController } from "../utils/catchedController";
 import {
+  createProductService,
+  deleteProductService,
   getProductsByIdService,
   getProductsService,
   updateProductService,
@@ -27,6 +29,30 @@ export const getProductsById = catchedController(
     const numberid = Number(id);
     const products: Product | null = await getProductsByIdService(numberid);
     res.json(products);
+  }
+);
+
+export const createProduct = catchedController(
+  async (req: Request, res: Response) => {
+    const { name, description, price, stock, image, categoryId } = req.body;
+    const product = await createProductService({
+      name,
+      description,
+      price,
+      stock,
+      image,
+      categoryId,
+    });
+    res.status(201).json(product);
+  }
+);
+
+export const deleteProduct = catchedController(
+  async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) throw new ClientError("Invalid product id", 400);
+    await deleteProductService(id);
+    res.status(204).send();
   }
 );
 

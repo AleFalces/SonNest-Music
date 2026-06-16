@@ -1,5 +1,7 @@
 import { Router } from "express";
 import {
+  createProduct,
+  deleteProduct,
   getProducts,
   getProductsById,
   updateProduct,
@@ -55,6 +57,8 @@ const router = Router();
  *                 totalPages: { type: integer, example: 3 }
  */
 router.get("/", getProducts);
+
+router.post("/", checkLogin, isAdmin, createProduct);
 
 /**
  * @openapi
@@ -135,5 +139,7 @@ router.get("/:id", getProductsById);
  *               $ref: '#/components/schemas/Error'
  */
 router.patch("/:id", checkLogin, isAdmin, updateProduct);
+
+router.delete("/:id", checkLogin, isAdmin, deleteProduct);
 
 export default router;
