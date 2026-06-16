@@ -21,7 +21,7 @@ const features = [
 
 const FeaturesSection: React.FC = () => {
   return (
-    <section className="bg-cream-200 px-6 py-20">
+    <section className="bg-muted px-6 py-20">
       <div className="section">
         <h2 className="mb-12 text-center text-3xl font-bold md:text-4xl">
           Why Choose Us

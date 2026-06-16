@@ -148,14 +148,14 @@ const Navbar: React.FC = () => {
                 <div className="absolute right-0 mt-2 w-44 overflow-hidden rounded-xl bg-surface text-ink shadow-card-hover">
                   <Link
                     href="/userOrders"
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-cream-200"
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-muted"
                   >
                     <Package size={16} />
                     <span>My Orders</span>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-bordo transition-colors hover:bg-cream-200"
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-bordo transition-colors hover:bg-muted"
                   >
                     <LogOut size={16} />
                     <span>Logout</span>

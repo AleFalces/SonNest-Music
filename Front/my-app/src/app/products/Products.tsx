@@ -8,14 +8,14 @@ import { Search, PackageOpen } from "lucide-react";
 
 const SkeletonCard = () => (
   <div className="card overflow-hidden">
-    <div className="aspect-[4/3] animate-pulse bg-cream-200" />
+    <div className="aspect-[4/3] animate-pulse bg-muted" />
     <div className="space-y-3 p-5">
-      <div className="h-5 w-3/4 animate-pulse rounded bg-cream-200" />
+      <div className="h-5 w-3/4 animate-pulse rounded bg-muted" />
       <div className="flex justify-between">
-        <div className="h-5 w-16 animate-pulse rounded bg-cream-200" />
-        <div className="h-4 w-20 animate-pulse rounded bg-cream-200" />
+        <div className="h-5 w-16 animate-pulse rounded bg-muted" />
+        <div className="h-4 w-20 animate-pulse rounded bg-muted" />
       </div>
-      <div className="h-10 w-full animate-pulse rounded-xl bg-cream-200" />
+      <div className="h-10 w-full animate-pulse rounded-xl bg-muted" />
     </div>
   </div>
 );
@@ -87,7 +87,7 @@ const Products: React.FC = () => {
               className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors duration-300 ${
                 isActive
                   ? "bg-bordo text-white shadow-soft"
-                  : "border-2 border-cream-200 text-ink-soft hover:border-bordo hover:text-bordo"
+                  : "border-2 border-muted text-ink-soft hover:border-bordo hover:text-bordo"
               }`}
             >
               {category === "all" ? "All" : category}

@@ -171,7 +171,7 @@ const CartPage = () => {
                       <button
                         onClick={() => handleDeleteAll(product.id, product.name)}
                         aria-label={`Remove ${product.name}`}
-                        className="rounded-lg p-1.5 text-ink-soft transition-colors hover:bg-cream-200 hover:text-bordo"
+                        className="rounded-lg p-1.5 text-ink-soft transition-colors hover:bg-muted hover:text-bordo"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -179,11 +179,11 @@ const CartPage = () => {
 
                     <div className="mt-3 flex items-center justify-between">
                       {/* Quantity stepper */}
-                      <div className="flex items-center gap-1 rounded-xl border-2 border-cream-200 p-1">
+                      <div className="flex items-center gap-1 rounded-xl border-2 border-muted p-1">
                         <button
                           onClick={() => removeOneFromCart(product.id)}
                           aria-label="Decrease quantity"
-                          className="rounded-lg p-1.5 text-bordo transition-colors hover:bg-cream-200"
+                          className="rounded-lg p-1.5 text-bordo transition-colors hover:bg-muted"
                         >
                           <Minus size={16} />
                         </button>
@@ -194,7 +194,7 @@ const CartPage = () => {
                           onClick={() => addToCart(product.id, product.stock)}
                           disabled={atStockLimit}
                           aria-label="Increase quantity"
-                          className="rounded-lg p-1.5 text-bordo transition-colors hover:bg-cream-200 disabled:cursor-not-allowed disabled:opacity-40"
+                          className="rounded-lg p-1.5 text-bordo transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
                         >
                           <Plus size={16} />
                         </button>
@@ -219,7 +219,7 @@ const CartPage = () => {
                 <span>Items</span>
                 <span>{totalItems}</span>
               </div>
-              <div className="flex justify-between border-t border-cream-200 pt-4">
+              <div className="flex justify-between border-t border-muted pt-4">
                 <span className="font-semibold text-ink">Total</span>
                 <span className="text-2xl font-bold text-bordo">
                   {formatPrice(totalPrice)}

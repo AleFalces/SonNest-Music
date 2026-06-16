@@ -51,7 +51,7 @@ const ProductDetail: React.FC = () => {
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         {/* Image */}
         <div className="card overflow-hidden">
-          <div className="relative aspect-square bg-cream-200">
+          <div className="relative aspect-square bg-muted">
             <img
               src={product.image}
               alt={product.name}

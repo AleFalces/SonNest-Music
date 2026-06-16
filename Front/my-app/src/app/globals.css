@@ -8,8 +8,9 @@
 @theme {
   /* Brand palette */
   --color-cream: #faf6ef; /* page background */
-  --color-cream-100: #fffdf9;
-  --color-cream-200: #f1e9dc; /* subtle surfaces / borders */
+  --color-cream-100: #fffdf9; /* near-white: text on dark sections (constant) */
+  --color-cream-200: #f1e9dc; /* light tint: text on dark sections (constant) */
+  --color-muted: #f1e9dc; /* subtle surfaces / borders (flips in dark) */
   --color-surface: #ffffff; /* cards */
 
   --color-bordo: #7b2d26; /* primary */
@@ -42,19 +43,20 @@
    variables, so bg-cream / text-ink / .card etc. flip automatically.
    `night` (always-dark surfaces) stays dark in both themes. */
 .dark {
-  --color-cream: #17120f; /* page background */
-  --color-cream-100: #1e1813;
-  --color-cream-200: #2c241e; /* subtle surfaces / borders */
-  --color-surface: #221b16; /* cards */
+  /* cream-100 / cream-200 are intentionally NOT overridden: they are used as
+     light text on the always-dark `night` sections and must stay light. */
+  --color-cream: #15110d; /* page background (darkest) */
+  --color-muted: #241c16; /* subtle surfaces / borders / bands */
+  --color-surface: #2b2118; /* cards (most elevated) */
 
-  --color-ink: #f2ece3; /* main text */
-  --color-ink-soft: #b8a99b; /* secondary text */
+  --color-ink: #f3ece2; /* main text */
+  --color-ink-soft: #c2b3a4; /* secondary text */
 
-  --color-bordo: #cf6a5e; /* lightened for readable headings/prices on dark */
+  --color-bordo: #cf6f63; /* lightened for readable headings/prices on dark */
   --color-bordo-600: #c25a4e;
 
-  --color-gold: #d8a24a;
-  --color-gold-600: #c08a34;
+  --color-gold: #dca84e;
+  --color-gold-600: #c8933a;
 
   --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-card: 0 6px 22px rgba(0, 0, 0, 0.45);
@@ -132,17 +134,17 @@
     @apply border-2 border-bordo text-bordo hover:bg-bordo hover:text-white;
   }
   .btn-ghost {
-    @apply text-ink hover:bg-cream-200;
+    @apply text-ink hover:bg-muted;
   }
 
   /* Surfaces */
   .card {
-    @apply rounded-2xl bg-surface shadow-card transition-shadow duration-300;
+    @apply rounded-2xl border border-muted bg-surface shadow-card transition-shadow duration-300;
   }
 
   /* Form inputs */
   .input {
-    @apply w-full rounded-xl border-2 border-cream-200 bg-surface px-3 py-2
+    @apply w-full rounded-xl border-2 border-muted bg-surface px-3 py-2
       text-ink transition-colors duration-300
       focus:border-bordo focus:outline-none focus:ring-2 focus:ring-gold-200;
   }
@@ -173,5 +175,5 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-cream-200);
+  background: var(--color-muted);
 }

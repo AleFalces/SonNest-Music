@@ -24,7 +24,7 @@ export const Card: React.FC<CardProps> = ({ product }) => {
 
   return (
     <div className="card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
-      <div className="relative aspect-[4/3] overflow-hidden bg-cream-200">
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img
           src={product.image}
           alt={product.name}
