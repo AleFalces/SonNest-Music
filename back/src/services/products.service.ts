@@ -79,6 +79,12 @@ export const getProductsService = async (
   };
 };
 
+export const deleteProductService = async (id: number): Promise<void> => {
+  const product = await ProductRepository.findOneBy({ id });
+  if (!product) throw new ClientError("Product not found", 404);
+  await ProductRepository.remove(product);
+};
+
 export const getProductsByIdService = async (
   id: number
 ): Promise<Product | null> => {

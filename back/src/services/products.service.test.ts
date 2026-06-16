@@ -1,5 +1,6 @@
 import {
   createProductService,
+  deleteProductService,
   getProductsService,
   updateProductService,
 } from "./products.service";
@@ -12,6 +13,7 @@ jest.mock("../repositories/product.repository", () => ({
     findOneBy: jest.fn(),
     save: jest.fn(),
     create: jest.fn(),
+    remove: jest.fn(),
     createQueryBuilder: jest.fn(),
   },
 }));
@@ -25,6 +27,7 @@ jest.mock("../repositories/category.repository", () => ({
 const findOneBy = ProductRepository.findOneBy as jest.Mock;
 const save = ProductRepository.save as jest.Mock;
 const create = ProductRepository.create as jest.Mock;
+const remove = ProductRepository.remove as jest.Mock;
 const createQueryBuilder = ProductRepository.createQueryBuilder as jest.Mock;
 const categoryFindOneBy = CategoryRepository.findOneBy as jest.Mock;
 
@@ -137,5 +140,46 @@ describe("createProductService", () => {
     expect(create).toHaveBeenCalledWith(validData);
     expect(save).toHaveBeenCalled();
     expect(result).toMatchObject({ id: 1, name: "Fender Stratocaster" });
+  });
+
+  it("throws a 404 ClientError when the category does not exist", async () => {
+    categoryFindOneBy.mockResolvedValue(null);
+
+    await expect(createProductService(validData)).rejects.toMatchObject({
+      statusCode: 404,
+    });
+    await expect(createProductService(validData)).rejects.toBeInstanceOf(
+      ClientError
+    );
+    expect(create).not.toHaveBeenCalled();
+    expect(save).not.toHaveBeenCalled();
+  });
+});
+
+describe("deleteProductService", () => {
+  beforeEach(() => {
+    findOneBy.mockReset();
+    remove.mockReset();
+  });
+
+  it("removes an existing product", async () => {
+    const product = { id: 1, name: "Fender Stratocaster" };
+    findOneBy.mockResolvedValue(product);
+    remove.mockResolvedValue(product);
+
+    await deleteProductService(1);
+
+    expect(findOneBy).toHaveBeenCalledWith({ id: 1 });
+    expect(remove).toHaveBeenCalledWith(product);
+  });
+
+  it("throws a 404 ClientError when the product is missing", async () => {
+    findOneBy.mockResolvedValue(null);
+
+    await expect(deleteProductService(99)).rejects.toMatchObject({
+      statusCode: 404,
+    });
+    await expect(deleteProductService(99)).rejects.toBeInstanceOf(ClientError);
+    expect(remove).not.toHaveBeenCalled();
   });
 });
