@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import ThemeToggle from "./ThemeToggle";
 
 const navLinks = [
   { href: "/", label: "Home", icon: Home },
@@ -127,6 +128,8 @@ const Navbar: React.FC = () => {
             <span>Cart</span>
           </Link>
 
+          <ThemeToggle className="ml-1" />
+
           {user ? (
             <div className="relative ml-1" ref={dropdownRef}>
               <button
@@ -168,8 +171,9 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* Mobile: cart + hamburger */}
+        {/* Mobile: theme + cart + hamburger */}
         <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
           <Link href="/cart" className="relative p-2 text-cream-100">
             <ShoppingCart size={22} />
             <CartBadge />

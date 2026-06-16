@@ -38,6 +38,29 @@
   --shadow-card-hover: 0 12px 30px rgba(43, 35, 32, 0.16);
 }
 
+/* Dark theme — remap the neutral/brand tokens; utilities reference these
+   variables, so bg-cream / text-ink / .card etc. flip automatically.
+   `night` (always-dark surfaces) stays dark in both themes. */
+.dark {
+  --color-cream: #17120f; /* page background */
+  --color-cream-100: #1e1813;
+  --color-cream-200: #2c241e; /* subtle surfaces / borders */
+  --color-surface: #221b16; /* cards */
+
+  --color-ink: #f2ece3; /* main text */
+  --color-ink-soft: #b8a99b; /* secondary text */
+
+  --color-bordo: #cf6a5e; /* lightened for readable headings/prices on dark */
+  --color-bordo-600: #c25a4e;
+
+  --color-gold: #d8a24a;
+  --color-gold-600: #c08a34;
+
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 6px 22px rgba(0, 0, 0, 0.45);
+  --shadow-card-hover: 0 12px 30px rgba(0, 0, 0, 0.55);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
