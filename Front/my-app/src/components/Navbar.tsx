@@ -17,6 +17,7 @@ import {
   ChevronUp,
   Menu,
   X,
+  ShieldCheck,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import ThemeToggle from "./ThemeToggle";
@@ -128,6 +129,20 @@ const Navbar: React.FC = () => {
             <span>Cart</span>
           </Link>
 
+          {user?.role === "admin" && (
+            <Link
+              href="/admin"
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm transition-colors duration-300 ${
+                isActive("/admin")
+                  ? "bg-white/10 text-gold"
+                  : "text-cream-100 hover:bg-white/5 hover:text-gold"
+              }`}
+            >
+              <ShieldCheck size={18} />
+              <span>Admin</span>
+            </Link>
+          )}
+
           <ThemeToggle className="ml-1" />
 
           {user ? (
@@ -207,6 +222,20 @@ const Navbar: React.FC = () => {
                 <span>{label}</span>
               </Link>
             ))}
+
+            {user?.role === "admin" && (
+              <Link
+                href="/admin"
+                className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-colors ${
+                  isActive("/admin")
+                    ? "bg-white/10 text-gold"
+                    : "text-cream-100 hover:bg-white/5"
+                }`}
+              >
+                <ShieldCheck size={18} />
+                <span>Admin</span>
+              </Link>
+            )}
 
             {user ? (
               <>
