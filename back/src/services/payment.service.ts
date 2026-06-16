@@ -1,7 +1,10 @@
-import { Preference } from "mercadopago";
+import { Preference, Payment } from "mercadopago";
 import { mpClient } from "../config/mercadopago";
 import { FRONTEND_URL } from "../config/envs";
 import { ProductRepository } from "../repositories/product.repository";
+import { OrderRepository } from "../repositories/order.repository";
+import { Order } from "../entities/Order";
+import { createOrderService } from "./order.service";
 import { ClientError } from "../utils/errors";
 
 // Creates a Mercado Pago "preference" (Checkout Pro) for the given products and
@@ -55,4 +58,28 @@ export const createPreferenceService = async (
     id: String(result.id),
     init_point: result.init_point as string,
   };
+};
+
+// Confirms a Mercado Pago payment and creates the order if it was approved.
+// Verifies status against MP (never trusts the browser) and is idempotent:
+// the same payment confirmed twice yields a single order.
+export const confirmPaymentService = async (
+  paymentId: string
+): Promise<Order> => {
+  const existing = await OrderRepository.findOneBy({ paymentId });
+  if (existing) return existing;
+
+  const payment = await new Payment(mpClient).get({ id: paymentId });
+  if (payment.status !== "approved")
+    throw new ClientError("Payment not approved", 402);
+
+  const { user_id, product_ids } = payment.metadata;
+  const order = await createOrderService({
+    userId: user_id,
+    products: product_ids,
+  });
+
+  order.paymentId = paymentId;
+  await OrderRepository.save(order);
+  return order;
 };
