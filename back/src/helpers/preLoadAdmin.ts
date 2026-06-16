@@ -25,7 +25,7 @@ export const preLoadAdmin = async () => {
   await UserRepository.save(user);
 
   const credential = await createCredentialService({
-    password: process.env.ADMIN_PASSWORD || "admin1234",
+    password: process.env.ADMIN_PASSWORD || "Admin123!",
   });
   user.credential = credential;
   await UserRepository.save(user);
