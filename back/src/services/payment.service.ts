@@ -34,6 +34,10 @@ export const createPreferenceService = async (
 
   const preference = new Preference(mpClient);
 
+  // Mercado Pago only allows auto_return when back_urls.success is a public URL,
+  // so it fails on localhost. Enable it only outside local development.
+  const useAutoReturn = /^https:\/\//.test(FRONTEND_URL);
+
   const result = await preference.create({
     body: {
       items,
@@ -49,8 +53,7 @@ export const createPreferenceService = async (
         pending: `${FRONTEND_URL}/checkout/pending`,
         failure: `${FRONTEND_URL}/checkout/failure`,
       },
-      // Auto-redirect back to our site once the payment is approved.
-      auto_return: "approved",
+      ...(useAutoReturn && { auto_return: "approved" }),
     },
   });
 
