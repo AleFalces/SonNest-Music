@@ -40,10 +40,29 @@ export const getProductsById = async (id: string) => {
   }
 };
 
+export interface ProductInput {
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  image: string;
+  categoryId: number;
+}
+
+export const createProduct = async (data: ProductInput) => {
+  const response = await apiServices.post(`${path}`, data);
+  return response.data;
+};
+
 export const updateProduct = async (
   id: number,
-  data: { stock?: number; price?: number }
+  data: Partial<ProductInput>
 ) => {
   const response = await apiServices.patch(`${path}${id}`, data);
+  return response.data;
+};
+
+export const deleteProduct = async (id: number) => {
+  const response = await apiServices.delete(`${path}${id}`);
   return response.data;
 };
