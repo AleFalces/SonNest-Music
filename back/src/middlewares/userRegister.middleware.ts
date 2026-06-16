@@ -2,17 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { checkUserExists } from "../services/user.service";
 import { ClientError } from "../utils/errors";
 
-const validateUserRegister = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { email, password, name, address, phone } = req.body;
-  if (!email || !password || !name || !address || !phone)
-    next(new ClientError("Missing fields"));
-  else next();
-};
-
+// Field validation is handled by the register Zod schema; this only checks the
+// database invariant (email must be unique).
 const validateUserExists = async (
   req: Request,
   res: Response,
@@ -20,8 +11,8 @@ const validateUserExists = async (
 ) => {
   const { email } = req.body;
   if (await checkUserExists(email))
-    next(new ClientError("User already exists", 400));
-  else next();
+    return next(new ClientError("User already exists", 400));
+  next();
 };
 
-export default [validateUserRegister, validateUserExists];
+export default validateUserExists;

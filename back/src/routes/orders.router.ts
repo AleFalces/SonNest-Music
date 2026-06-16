@@ -1,7 +1,9 @@
 import { Router } from "express";
-import validateOrderCreate from "../middlewares/orderCreate.middleware";
+import validateItemsExist from "../middlewares/orderCreate.middleware";
 import { createOrder } from "../controllers/order.controller";
 import checkLogin from "../middlewares/checkLogin.middleware";
+import { validate } from "../middlewares/validate.middleware";
+import { orderSchema } from "../schemas/order.schema";
 
 const ordersRouter = Router();
 
@@ -36,6 +38,12 @@ const ordersRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-ordersRouter.post("/", checkLogin, validateOrderCreate, createOrder);
+ordersRouter.post(
+  "/",
+  checkLogin,
+  validate(orderSchema),
+  validateItemsExist,
+  createOrder
+);
 
 export default ordersRouter;
