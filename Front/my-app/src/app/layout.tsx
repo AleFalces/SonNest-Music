@@ -18,8 +18,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SoundNest",
-  description: "Musical Instruments Store",
+  title: "SoundNest — Musical Instruments Store",
+  description:
+    "Shop guitars, basses, drums and accessories at SoundNest. Curated gear, fair stock and a smooth checkout.",
 };
 
 //componets
