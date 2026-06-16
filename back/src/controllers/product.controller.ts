@@ -10,8 +10,14 @@ import { ClientError } from "../utils/errors";
 
 export const getProducts = catchedController(
   async (req: Request, res: Response) => {
-    const products = await getProductsService();
-    res.json(products);
+    const { page, limit, search, category } = req.query;
+    const result = await getProductsService({
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+      search: typeof search === "string" ? search : undefined,
+      category: typeof category === "string" ? category : undefined,
+    });
+    res.json(result);
   }
 );
 

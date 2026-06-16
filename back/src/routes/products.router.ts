@@ -21,16 +21,38 @@ const router = Router();
  * /products:
  *   get:
  *     tags: [Products]
- *     summary: List all products
+ *     summary: List products (paginated, searchable, filterable by category)
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 9 }
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *         description: Case-insensitive match on the product name
+ *       - in: query
+ *         name: category
+ *         schema: { type: string }
+ *         description: Category name (or "all")
  *     responses:
  *       200:
- *         description: Array of products
+ *         description: Paginated list of products
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Product'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Product'
+ *                 page: { type: integer, example: 1 }
+ *                 limit: { type: integer, example: 9 }
+ *                 total: { type: integer, example: 21 }
+ *                 totalPages: { type: integer, example: 3 }
  */
 router.get("/", getProducts);
 

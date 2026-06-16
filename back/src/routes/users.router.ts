@@ -1,9 +1,11 @@
 import { Request, Response, Router } from "express";
-import validateUserRegister from "../middlewares/userRegister.middleware";
-import validateUserLogin from "../middlewares/userLogin.middleware";
+import validateUserExists from "../middlewares/userRegister.middleware";
+import validateUserDoesExist from "../middlewares/userLogin.middleware";
 import { login, registerUser } from "../controllers/user.controller";
 import checkLogin from "../middlewares/checkLogin.middleware";
 import { OrderRepository } from "../repositories/order.repository";
+import { validate } from "../middlewares/validate.middleware";
+import { loginSchema, registerSchema } from "../schemas/user.schema";
 
 const usersRouter = Router();
 
@@ -36,7 +38,12 @@ const usersRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-usersRouter.post("/register", validateUserRegister, registerUser);
+usersRouter.post(
+  "/register",
+  validate(registerSchema),
+  validateUserExists,
+  registerUser
+);
 
 /**
  * @openapi
@@ -64,7 +71,12 @@ usersRouter.post("/register", validateUserRegister, registerUser);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-usersRouter.post("/login", validateUserLogin, login);
+usersRouter.post(
+  "/login",
+  validate(loginSchema),
+  validateUserDoesExist,
+  login
+);
 
 /**
  * @openapi

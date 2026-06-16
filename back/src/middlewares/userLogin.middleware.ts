@@ -1,21 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import { checkUserExists } from "../services/user.service";
+import { ClientError } from "../utils/errors";
 
-const validateLogin = (req: Request, res: Response, next: NextFunction) => {
-  const { email, password } = req.body;
-  if (!email || !password) next({ message: "Missing fields", status: 400 });
-  else next();
-};
-
-const validateUserExists = async (
+// Field validation is handled by the login Zod schema; this only checks that
+// the account exists before attempting to authenticate.
+const validateUserDoesExist = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { email } = req.body;
   if (!(await checkUserExists(email)))
-    next({ message: "User does not exist", statusCode: 400 });
-  else next();
+    return next(new ClientError("User does not exist", 400));
+  next();
 };
 
-export default [validateLogin, validateUserExists];
+export default validateUserDoesExist;

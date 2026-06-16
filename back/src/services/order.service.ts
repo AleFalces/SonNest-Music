@@ -19,7 +19,6 @@ export const createOrderService = async (
 
   const userF = await UserRepository.findOneBy({ id: createOrderDto.userId });
   if (!userF) throw new Error("User not found");
-  console.log(userF);
   const newOrder = OrderRepository.create();
 
   newOrder.status = "approved";
