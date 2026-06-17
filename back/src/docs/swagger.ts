@@ -69,6 +69,24 @@ const options: swaggerJsdoc.Options = {
             products: { type: "array", items: { type: "integer" }, example: [1, 2] },
           },
         },
+        CartItem: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 5 },
+            quantity: { type: "integer", example: 2 },
+            product: { $ref: "#/components/schemas/Product" },
+          },
+        },
+        Cart: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 1 },
+            items: {
+              type: "array",
+              items: { $ref: "#/components/schemas/CartItem" },
+            },
+          },
+        },
         Error: {
           type: "object",
           properties: {

@@ -42,6 +42,22 @@ describe("API integration", () => {
     expect(res.body.message).toBe("Token is required");
   });
 
+  it("GET /cart returns 400 without a token", async () => {
+    const res = await request(app).get("/cart");
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Token is required");
+  });
+  it("POST /cart/items returns 400 without a token", async () => {
+    const res = await request(app).post("/cart/items").send({ productId: 1 });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Token is required");
+  });
+  it("DELETE /cart returns 400 without a token", async () => {
+    const res = await request(app).delete("/cart");
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Token is required");
+  });
+
   it("serves Swagger UI at /api-docs", async () => {
     const res = await request(app).get("/api-docs/").redirects(1);
     expect(res.status).toBe(200);
