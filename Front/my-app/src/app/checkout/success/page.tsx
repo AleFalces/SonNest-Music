@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
@@ -10,8 +10,14 @@ const SuccessContent = () => {
   const params = useSearchParams();
   const { clearCart } = useCart();
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
+  // Guard against React StrictMode mounting the effect twice in dev, which
+  // would fire the confirm request (and clearCart) twice.
+  const confirmed = useRef(false);
 
   useEffect(() => {
+    if (confirmed.current) return;
+    confirmed.current = true;
+
     const paymentId = params.get("payment_id");
     if (!paymentId) {
       setStatus("error");

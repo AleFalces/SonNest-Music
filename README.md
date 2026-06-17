@@ -36,6 +36,7 @@
 - 🔐 **JWT authentication** with bcrypt-hashed passwords
 - 👤 User registration and login
 - 🛒 Persistent cart (LocalStorage)
+- 💳 **Mercado Pago Checkout Pro** (test mode) — pay from the cart, order created on confirmation
 - 📦 Stock validation on checkout
 - 🔒 Protected private routes
 - 🧾 Basic order history
@@ -103,8 +104,26 @@ Interactive docs are served at **`/api-docs`** (Swagger UI) when the backend is 
 | GET    | `/products`       |  ❌  | List products                      |
 | GET    | `/products/:id`   |  ❌  | Single product                     |
 | POST   | `/orders`         |  ✅  | Create order, validates stock      |
+| POST   | `/payments/create-preference` | ✅ | Mercado Pago: build a Checkout Pro preference → `{ id, init_point }` |
+| GET    | `/payments/confirm?payment_id=` | ✅ | Verify the payment vs MP; if approved, create the order (idempotent) |
 
 > Auth: send the JWT in the `Authorization` header (no `Bearer` prefix).
+
+### Payments (test mode)
+
+Checkout runs on **Mercado Pago Checkout Pro** in sandbox mode. From the cart the
+frontend calls `create-preference` and redirects the buyer to `init_point`; on
+return, the success page calls `confirm`, which verifies the payment against
+Mercado Pago and creates the order from the preference metadata (idempotent via a
+nullable `Order.paymentId`).
+
+To try it you need test **credentials** (`MP_ACCESS_TOKEN`) and a Mercado Pago
+**test user** as the buyer (a real account triggers *"una de las partes es de
+prueba"*). On `localhost` Mercado Pago shows no return button and no `auto_return`,
+so confirm manually by opening `/checkout/success?payment_id=<id>`. Setting
+`FRONTEND_URL` to the https Vercel URL enables `auto_return` in production; a
+webhook (`notification_url`) is the planned follow-up so confirmation no longer
+depends on the browser returning.
 
 ---
 
@@ -141,6 +160,9 @@ npm run dev                  # http://localhost:3000
 ```
 
 On boot the backend auto-seeds the categories and products.
+
+> For checkout, set `MP_ACCESS_TOKEN` (Mercado Pago test access token) and
+> `FRONTEND_URL` (base for the return URLs) in `back/.env`.
 
 ---
 
