@@ -718,18 +718,28 @@ git push -u origin upgrade-soundnest
 
 ## 6. Prioritised roadmap (post-UI overhaul)
 
-> Status (updated 2026-06-17): the quality playbook (§2), the full frontend UI
+> Status (updated 2026-06-18): the quality playbook (§2), the full frontend UI
 > overhaul, **P2–P4** (admin stock panel + CRUD, order detail, pagination/search,
 > Zod validation), **Feature 2 — Mercado Pago Checkout Pro**, **Feature 2.5
-> (payments docs)** and the **Feature 4 backend** (cart entities/service/routes)
-> are all done and **merged to `main`**. Backend suite is at **60 tests**.
-> The front is deployed on Vercel (`soundnest-musicstore`); a Vercel auto-PR (#13)
-> patched a critical RSC RCE (React/Next.js bump).
-> **P1 (cleanup) is mostly done** (merged branches deleted; docs are versioned).
-> **P0 (deploy of the backend on Render) is still open.** Remaining feature work:
-> Feature 4.4 (cart frontend — IN PROGRESS), payment webhooks, P5.
-> Work top-down and tick items off as they ship. Rationale for the order: make
-> production work first, then close cheap loops, then features by impact/effort.
+> (payments docs)** and **Feature 4 (persistent cart, backend + frontend)** are
+> all done and **merged to `main`**. The cart frontend (PR #15) was smoke-tested
+> end-to-end on Node 20 and merged. Backend suite is at **80 tests** on the
+> webhooks branch. The front is on Vercel (`soundnest-musicstore`).
+>
+> **Backend deploy is DEFERRED to last and the provider is UNDECIDED (likely NOT
+> Render).** Do not assume Render. Everything else (features) comes first.
+>
+> **IN PROGRESS — Feature 5: Mercado Pago payment webhooks** (branch
+> `feat-payment-webhooks`, draft **PR #16**). See §8 below for the full plan and
+> what's left.
+>
+> **NEXT SESSION — resume Feature 5 (§8):** add the integration test (webhook
+> route is public), the `notification_url` on the preference, and the docs
+> (README + ngrok note). Then mark PR #16 ready and merge. After that: Cloudinary
+> image uploads, admin order management / metrics. Deploy stays last.
+>
+> Work top-down. Run everything on **Node 20 via fnm** + **Postgres in Docker**
+> (`docker compose up -d db`); Windows-native, no WSL.
 
 ### P0 — Production must actually work (blocks everything)
 - [ ] **Render** on **Node 20** + envs (`DATABASE_URL`, `JWT_SECRET`); **do NOT** set
@@ -1088,3 +1098,51 @@ Verify: full run — `cd back && npm test && npm run build`; front build.
 - Update README features/roadmap and the API table; tick P4/P5 items above.
 - Open PR(s) into `main`. Consider landing Feature 1 and 3 first (low-risk) and
   Stripe/cart behind their own PRs.
+
+---
+
+## 8. Feature 5 — Mercado Pago payment webhooks (IN PROGRESS)
+
+Goal: create the order from a **server-to-server** Mercado Pago notification, not
+only from the browser returning to `/checkout/success` (which fails if the buyer
+closes the tab, or on localhost where MP shows no return button). Branch
+`feat-payment-webhooks`, draft **PR #16**. TDD on the service/controller logic.
+
+Anchored to the real code: `confirmPaymentService` already verified payment status
+against MP and created the order idempotently (guard: nullable `Order.paymentId`),
+so the webhook **reuses** that logic. Backend suite: **80 tests** on the branch.
+
+### Done (committed + pushed on PR #16)
+- **W1 `chore`** — envs `BACKEND_URL` (public base for the webhook URL) and
+  `MP_WEBHOOK_SECRET` (signature secret) in `config/envs.ts` + `.env.example`.
+- **W2 `refactor`** — extracted `processPaymentService(paymentId): Order | null`
+  (idempotent verify-and-create; returns `null` when not yet approved).
+  `confirmPaymentService` delegates to it and keeps its 402 contract. +3 tests.
+- **W3 `feat`** — `utils/mpWebhookSignature.ts` `verifyMpWebhookSignature` (pure
+  HMAC-SHA256 of MP's manifest `id:<dataId>;request-id:<reqId>;ts:<ts>;`, constant-
+  time compare). +3 tests.
+- **W4 `feat`** — `paymentWebhook` controller + public `POST /payments/webhook`
+  route (no `checkLogin`): extracts `type` + `data.id` (query, body fallback),
+  validates signature when `MP_WEBHOOK_SECRET` is set (→ 401), calls
+  `processPaymentService`, always acks **200** (a thrown error → 500 so MP retries).
+  +3 controller tests + Swagger `@openapi`.
+
+### Left to do (resume here)
+1. **Integration test**: `POST /payments/webhook` is public — assert it does NOT
+   return the 400 "Token is required" the other payment routes do (use a
+   non-`payment` event so it short-circuits to 200 without touching MP).
+2. **`notification_url`** on the preference in `createPreferenceService`: set
+   `${BACKEND_URL}/payments/webhook` **only when `BACKEND_URL` is public** (same
+   guard idea as `auto_return`), so local-without-tunnel still works via the
+   browser confirm flow. + a test (present when public, omitted when empty).
+3. **Docs (W5)**: README section on webhooks + an **ngrok** note for local testing
+   (expose `:8080`, set `BACKEND_URL` to the https ngrok URL, copy the webhook
+   secret from the MP panel into `MP_WEBHOOK_SECRET`).
+4. Mark PR #16 **ready** and merge; delete the branch.
+
+### For the live end-to-end test (user-side, optional, when ready)
+- ngrok (or similar) to expose the backend publicly; a webhook secret from the MP
+  panel. All unit tests pass without either (MP is mocked).
+
+After Feature 5: Cloudinary image uploads, admin order management / metrics. Then
+the deferred backend deploy (provider undecided — NOT assumed to be Render).
