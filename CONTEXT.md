@@ -718,12 +718,16 @@ git push -u origin upgrade-soundnest
 
 ## 6. Prioritised roadmap (post-UI overhaul)
 
-> Status (updated 2026-06-16): the quality playbook (§2), the full frontend UI
+> Status (updated 2026-06-17): the quality playbook (§2), the full frontend UI
 > overhaul, **P2–P4** (admin stock panel + CRUD, order detail, pagination/search,
-> Zod validation) and **Feature 2 — Mercado Pago Checkout Pro** are all done and
-> **merged to `main`**. Backend suite is at **57 tests**.
-> **P0 (deploy) and P1 (cleanup) are still open.** Remaining feature work:
-> Feature 2.5 (payments docs), Feature 4 (cart → backend), payment webhooks, P5.
+> Zod validation), **Feature 2 — Mercado Pago Checkout Pro**, **Feature 2.5
+> (payments docs)** and the **Feature 4 backend** (cart entities/service/routes)
+> are all done and **merged to `main`**. Backend suite is at **60 tests**.
+> The front is deployed on Vercel (`soundnest-musicstore`); a Vercel auto-PR (#13)
+> patched a critical RSC RCE (React/Next.js bump).
+> **P1 (cleanup) is mostly done** (merged branches deleted; docs are versioned).
+> **P0 (deploy of the backend on Render) is still open.** Remaining feature work:
+> Feature 4.4 (cart frontend — IN PROGRESS), payment webhooks, P5.
 > Work top-down and tick items off as they ship. Rationale for the order: make
 > production work first, then close cheap loops, then features by impact/effort.
 
@@ -775,7 +779,9 @@ in `back/src/entities/User.ts`, so the auth groundwork existed.
 - [ ] **Payment webhooks** (`notification_url`) + a tunnel (ngrok) so order creation
       doesn't depend on the browser returning. Also fixes the localhost "no return
       button / no auto_return" issue. Good portfolio feature.
-- [ ] **Cloudinary** image uploads · move cart persistence from `localStorage` to the backend.
+- [~] **Cart persistence to the backend** (Feature 4): backend DONE & merged
+      (entities/service/routes, PRs #12 & #14, 60 tests). Frontend (4.4) in progress.
+- [ ] **Cloudinary** image uploads.
 
 ---
 
@@ -1003,6 +1009,47 @@ Verify: `cd back && npm test` — count climbs from 24; `npm run build` stays gr
 
 Persist the cart per authenticated user; keep a localStorage fallback for guests
 and merge on login. Bigger change — do it last.
+
+> **Status (2026-06-17): backend DONE & merged, frontend IN PROGRESS.**
+> - **4.1 entities + repository** — `Cart` (one per user, `@OneToOne User`, eager
+>   `items`) + `CartItem` (`@ManyToOne` Cart/Product, `quantity`, `@Unique(["cart",
+>   "product"])`); `CartRepository` / `CartItemRepository`. Merged (**PR #12**).
+> - **4.2 service (TDD, 11 tests)** — `getCartService` (lazy-create),
+>   `addItemService` (stock-checked: 400 over stock, 404 missing product),
+>   `removeItemService` (decrement, drop at 0), `removeProductService`,
+>   `clearCartService`. Merged (**PR #12**).
+> - **4.3 HTTP layer** — `addItemSchema` (Zod), `cart.controller` (5 thin handlers),
+>   `cart.router` behind `checkLogin` mounted at `/cart` (`GET /cart`,
+>   `POST /cart/items`, `DELETE /cart/items/:productId`, `.../:productId/all`,
+>   `DELETE /cart`) + `@openapi` + `Cart`/`CartItem` Swagger schemas + 3 integration
+>   "400 without token" cases. Backend suite now **60 tests**. Merged (**PR #14**).
+> - **4.4 frontend** — NEXT, see the refined plan below.
+>
+> Aside: Vercel deployed the front (`soundnest-musicstore`) and auto-opened+merged
+> **PR #13** bumping React/Next.js to patch a critical RSC RCE (CVE-2025-55182 /
+> CVE-2025-66478). Branch frontend work off the updated `main` so the patched
+> Next.js is kept.
+>
+> **Refined 4.4 plan (anchored to the real code):** the backend models the cart as
+> `CartItem { product, quantity }`, but the frontend `CartContext` public API speaks
+> in `cartIds: number[]` (ids repeated N times) and **5 consumers** depend on it
+> (`Card`, `Navbar`, `Cart`, `IdProducts`, checkout `success`). **Keep that public
+> API unchanged**; internally translate the server cart → `cartIds` by repeating
+> each `product.id` `quantity` times (`flattenCart`), so `getCartCount` /
+> `getRemainingStock` keep working with zero consumer changes. Pieces:
+> 1. `services/cartServices.ts` — Axios client over `apiServices` (token auto-injected
+>    by its interceptor): `getCart`, `addCartItem`, `removeCartItem`,
+>    `removeCartProduct`, `clearCartApi`; each returns the server cart.
+> 2. `flattenCart(serverCart) → number[]` helper.
+> 3. Rewrite `CartContext` to source from `useAuth()`: **guest** = current
+>    localStorage behaviour untouched; **logged in** = load via `getCart` on
+>    mount/login and mutate via the API, refreshing `cartIds` from each response.
+> 4. **Merge on login** (delicate): when `isAuthenticated` flips false→true and a
+>    guest localStorage cart exists, push each unit to the server, clear local, then
+>    load the server cart. Server rejects over-stock with 400 — ignore silently in
+>    the merge.
+> Providers already nest correctly (`CartProvider` inside `AuthProvider` in
+> `layout.tsx`), so `useCart` can call `useAuth`.
 
 **4.1 — Backend: Cart entity + repository**
 - `entities/Cart.ts`: `id`, `@OneToOne` User, and either a `@ManyToMany Product`

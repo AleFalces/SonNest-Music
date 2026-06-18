@@ -21,12 +21,12 @@ SonNest-Music/
 │       ├── controllers/  # HTTP layer
 │       ├── services/     # business logic
 │       ├── repositories/ # TypeORM data access
-│       ├── entities/     # User, Credential, Product, Category, Order
+│       ├── entities/     # User, Credential, Product, Category, Order, Cart, CartItem
 │       ├── dtos/         # data transfer objects
 │       ├── schemas/      # Zod request schemas (register/login/order)
 │       ├── middlewares/  # validate(schema), checkLogin, isAdmin, DB-invariant checks
 │       ├── helpers/      # preLoad seed data (categories, products, admin)
-│       ├── routes/       # users / products / orders / categories routers
+│       ├── routes/       # users / products / orders / categories / payments / cart routers
 │       └── utils/        # ClientError, catchedController
 └── Front/my-app/
     └── src/
@@ -50,7 +50,7 @@ npm install
 npm run dev        # nodemon + ts-node on PORT (default 8080)
 npm run build      # tsc -> dist/
 npm start          # node dist/index.js (production)
-npm test           # jest (24 tests: utils, middlewares, services, integration)
+npm test           # jest (60 tests: utils, middlewares, services, integration)
 ```
 
 ### Frontend (`cd Front/my-app`)
@@ -95,6 +95,11 @@ categories and products (`helpers/preLoadCategories.ts`, `preLoadProducts.ts`).
 | DELETE | `/products/:id`   | ✅ admin | delete product                                   |
 | POST   | `/payments/create-preference` | ✅ | Mercado Pago: build a Checkout Pro preference, returns `{ id, init_point }` |
 | GET    | `/payments/confirm?payment_id=` | ✅ | verify payment vs MP; if approved, create the order (idempotent) |
+| GET    | `/cart`           |    ✅    | current user's cart (lazy-created); items carry `quantity` |
+| POST   | `/cart/items`     |    ✅    | add one unit of `{ productId }` (stock-checked) |
+| DELETE | `/cart/items/:productId` | ✅ | remove one unit (drops the line at 0)        |
+| DELETE | `/cart/items/:productId/all` | ✅ | remove a product entirely                |
+| DELETE | `/cart`           |    ✅    | empty the cart                                   |
 
 Auth: send the JWT in the `Authorization` header (no `Bearer` prefix — see
 `middlewares/checkLogin.middleware.ts`). Admin-only routes additionally use
