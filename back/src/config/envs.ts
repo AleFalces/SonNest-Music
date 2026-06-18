@@ -17,3 +17,15 @@ export const MP_ACCESS_TOKEN: string = process.env.MP_ACCESS_TOKEN || "";
 // (success / pending / failure). Defaults to the local Next.js dev server.
 export const FRONTEND_URL: string =
   process.env.FRONTEND_URL || "http://localhost:3000";
+
+// Public base URL of THIS backend, used to build Mercado Pago's webhook
+// (notification_url). Empty by default: webhooks are only wired when the
+// backend is reachable from the internet (a deployed URL or an ngrok tunnel
+// in local development). When empty, order creation falls back to the
+// browser-driven /payments/confirm flow.
+export const BACKEND_URL: string = process.env.BACKEND_URL || "";
+
+// Secret used to validate the signature of incoming Mercado Pago webhooks
+// (the "x-signature" header). Configured in the MP panel. When empty, signature
+// validation is skipped (handy for local sandbox testing) with a warning.
+export const MP_WEBHOOK_SECRET: string = process.env.MP_WEBHOOK_SECRET || "";

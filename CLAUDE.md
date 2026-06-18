@@ -110,6 +110,10 @@ Auth: send the JWT in the `Authorization` header (no `Bearer` prefix — see
 
 - TypeScript everywhere; backend uses a strict layered architecture
   (controller → service → repository). Keep new code in the matching layer.
+- **Comments: professional, precise, as concise as possible** (this is a
+  portfolio). Comment the *why* / non-obvious decisions, not the *what* the code
+  already says. Prefer one line; no tutorial-style narration. A redundant comment
+  is worse than none.
 - Controllers are wrapped with `catchedController` so thrown errors reach the
   central error handler in `server.ts`. Throw `new ClientError(msg, status)`
   for expected 4xx errors.
@@ -149,6 +153,14 @@ Auth: send the JWT in the `Authorization` header (no `Bearer` prefix — see
 
 ## Working agreement
 
+- **Incremental, checkpoint-driven workflow (HARD RULE).** Once a task is agreed,
+  do NOT barrel through many edits/commits at once. Make **one small,
+  self-contained change per turn** (a single function, a single test case), then
+  **STOP** and let the user read it. Their role is to read and verify the actual
+  code — not to rubber-stamp yes/no. Break even a single TDD step into small
+  pieces. Running tests/builds to corroborate a step (RED fails as expected,
+  GREEN passes) is welcome — the user runs them too. **Never commit without an
+  explicit go-ahead.** Don't dump large code blocks in chat.
 - **TDD (since 2026-06-16):** write the failing test first, implement the minimum
   to pass, then refactor — the goal is the whole app tested. Apply strict
   red-green-refactor to the service / middleware / business-logic layers (mock

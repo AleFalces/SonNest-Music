@@ -1,5 +1,10 @@
-import { createPreferenceService } from "./payment.service";
+import {
+  createPreferenceService,
+  processPaymentService,
+} from "./payment.service";
 import { ProductRepository } from "../repositories/product.repository";
+import { OrderRepository } from "../repositories/order.repository";
+import { createOrderService } from "./order.service";
 import { ClientError } from "../utils/errors";
 
 // Impostor for the product repository: we decide what the DB "returns".
@@ -9,18 +14,37 @@ jest.mock("../repositories/product.repository", () => ({
   },
 }));
 
-// Impostor for the Mercado Pago SDK. `Preference` becomes a fake class whose
-// `create` method is a jest mock we control. This way the test never hits the
-// real Mercado Pago API.
+// Impostor for the order repository (idempotency lookup + save) and the order
+// service (the actual order creation, already covered by its own tests).
+jest.mock("../repositories/order.repository", () => ({
+  OrderRepository: {
+    findOneBy: jest.fn(),
+    save: jest.fn(),
+  },
+}));
+jest.mock("./order.service", () => ({
+  createOrderService: jest.fn(),
+}));
+
+// Impostor for the Mercado Pago SDK. `Preference` and `Payment` become fake
+// classes whose `create` / `get` methods are jest mocks we control. This way
+// the test never hits the real Mercado Pago API.
 const mpPreferenceCreate = jest.fn();
+const mpPaymentGet = jest.fn();
 jest.mock("mercadopago", () => ({
   MercadoPagoConfig: jest.fn(),
   Preference: jest.fn().mockImplementation(() => ({
     create: mpPreferenceCreate,
   })),
+  Payment: jest.fn().mockImplementation(() => ({
+    get: mpPaymentGet,
+  })),
 }));
 
 const findOneBy = ProductRepository.findOneBy as jest.Mock;
+const orderFindOneBy = OrderRepository.findOneBy as jest.Mock;
+const orderSave = OrderRepository.save as jest.Mock;
+const createOrder = createOrderService as jest.Mock;
 
 describe("createPreferenceService", () => {
   const guitar = {
@@ -115,5 +139,55 @@ describe("createPreferenceService", () => {
       statusCode: 404,
     });
     expect(mpPreferenceCreate).not.toHaveBeenCalled();
+  });
+});
+
+describe("processPaymentService", () => {
+  beforeEach(() => {
+    orderFindOneBy.mockReset();
+    orderSave.mockReset();
+    createOrder.mockReset();
+    mpPaymentGet.mockReset();
+  });
+
+  it("is idempotent: returns the existing order without hitting MP", async () => {
+    const existing = { id: 7, paymentId: "pay_1" };
+    orderFindOneBy.mockResolvedValue(existing);
+
+    const result = await processPaymentService("pay_1");
+
+    expect(result).toBe(existing);
+    expect(mpPaymentGet).not.toHaveBeenCalled();
+    expect(createOrder).not.toHaveBeenCalled();
+  });
+
+  it("creates the order from the payment metadata when approved", async () => {
+    orderFindOneBy.mockResolvedValue(null);
+    mpPaymentGet.mockResolvedValue({
+      status: "approved",
+      metadata: { user_id: 42, product_ids: [1, 2] },
+    });
+    createOrder.mockResolvedValue({ id: 9 });
+    orderSave.mockImplementation(async (o) => o);
+
+    const result = await processPaymentService("pay_2");
+
+    expect(createOrder).toHaveBeenCalledWith({ userId: 42, products: [1, 2] });
+    expect(orderSave).toHaveBeenCalled();
+    expect(result).toMatchObject({ id: 9, paymentId: "pay_2" });
+  });
+
+  it("returns null and creates no order when the payment is not approved", async () => {
+    orderFindOneBy.mockResolvedValue(null);
+    mpPaymentGet.mockResolvedValue({
+      status: "pending",
+      metadata: { user_id: 42, product_ids: [1] },
+    });
+
+    const result = await processPaymentService("pay_3");
+
+    expect(result).toBeNull();
+    expect(createOrder).not.toHaveBeenCalled();
+    expect(orderSave).not.toHaveBeenCalled();
   });
 });
