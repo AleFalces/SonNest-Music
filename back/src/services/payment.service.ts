@@ -63,18 +63,17 @@ export const createPreferenceService = async (
   };
 };
 
-// Confirms a Mercado Pago payment and creates the order if it was approved.
-// Verifies status against MP (never trusts the browser) and is idempotent:
-// the same payment confirmed twice yields a single order.
-export const confirmPaymentService = async (
+// Idempotent (guarded by Order.paymentId): verifies the payment against MP and
+// creates the order only when approved; returns null if not yet approved.
+// Shared by the browser confirm flow and the webhook.
+export const processPaymentService = async (
   paymentId: string
-): Promise<Order> => {
+): Promise<Order | null> => {
   const existing = await OrderRepository.findOneBy({ paymentId });
   if (existing) return existing;
 
   const payment = await new Payment(mpClient).get({ id: paymentId });
-  if (payment.status !== "approved")
-    throw new ClientError("Payment not approved", 402);
+  if (payment.status !== "approved") return null;
 
   const { user_id, product_ids } = payment.metadata;
   const order = await createOrderService({
@@ -84,5 +83,15 @@ export const confirmPaymentService = async (
 
   order.paymentId = paymentId;
   await OrderRepository.save(order);
+  return order;
+};
+
+// Browser return flow (GET /payments/confirm): surfaces a not-yet-approved
+// payment as 402 (the webhook just acks instead).
+export const confirmPaymentService = async (
+  paymentId: string
+): Promise<Order> => {
+  const order = await processPaymentService(paymentId);
+  if (!order) throw new ClientError("Payment not approved", 402);
   return order;
 };
