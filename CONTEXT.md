@@ -734,8 +734,13 @@ git push -u origin upgrade-soundnest
 > **Feature 5: Mercado Pago payment webhooks ✅ DONE** (PRs #16, #17, #18 merged to
 > `main`). See §8 below.
 >
-> **NEXT SESSION:** Cloudinary image uploads, then admin order management / metrics.
-> After that [[migrate-to-node-22]]. Deploy stays last.
+> **Feature 6: Cloudinary image uploads + admin panel polish ✅ DONE** (open **PR
+> #20**). Backend upload endpoint (multer → Cloudinary, API secret server-side),
+> admin file-picker upload + per-row image/category edit (with confirm modals),
+> logout-redirects-home fix. Backend suite at **86 tests**.
+>
+> **NEXT SESSION:** admin order management / metrics. After that
+> [[migrate-to-node-22]]. Deploy stays last.
 >
 > Work top-down. Run everything on **Node 20 via fnm** + **Postgres in Docker**
 > (`docker compose up -d db`); Windows-native, no WSL.
@@ -796,7 +801,8 @@ in `back/src/entities/User.ts`, so the auth groundwork existed.
       button / no auto_return" issue. Done (Feature 5, §8; PRs #16/#17/#18).
 - [~] **Cart persistence to the backend** (Feature 4): backend DONE & merged
       (entities/service/routes, PRs #12 & #14, 60 tests). Frontend (4.4) in progress.
-- [ ] **Cloudinary** image uploads.
+- [x] **Cloudinary** image uploads. Done (Feature 6, PR #20): backend upload
+      endpoint + admin file-picker / per-row image & category edit.
 
 ---
 
@@ -1147,6 +1153,51 @@ so the webhook **reuses** that logic. Backend suite: **80 tests** on the branch.
 - ngrok (or similar) to expose the backend publicly; a webhook secret from the MP
   panel. All unit tests pass without either (MP is mocked).
 
-**Next features:** Cloudinary image uploads, admin order management / metrics. Then
-[[migrate-to-node-22]], and the deferred backend deploy (provider undecided — NOT
-assumed to be Render).
+**Done since:** Feature 6 (Cloudinary uploads), the **production deploy** (Render +
+Neon + Vercel, live end-to-end — see §6 P0), and the **keep-alive** (health probe +
+scheduled ping, §9.1). **Next:** performance §9, then admin order management / metrics.
+
+---
+
+## 9. Performance optimization plan
+
+> Triggered by "the app feels slow". Diagnosed (2026-06-19) with real measurements,
+> ordered by impact. The frontend was already fine (cards use `loading="lazy"` +
+> `decoding="async"`); the API is fast warm (~0.8s, ~3KB payloads).
+
+### 9.1 — Cold start ✅ DONE
+The free Render instance slept after ~15 min → first request **~32s**. Fixed with a
+lightweight `GET /health` (no DB) + a scheduled ping (GitHub Action every 10 min,
+PR #23) **and** an external UptimeRobot monitor (every 5 min) as a reliable backup.
+Render now stays warm. Neon is intentionally **left to auto-suspend** (resumes in
+~1–4s on the first query) so we don't burn its free compute budget — pinging
+`/health` avoids touching the DB on purpose.
+
+### 9.2 — Catalog images → Cloudinary (the main remaining win)
+Catalog images are hotlinked from uncontrolled external hosts: inconsistent
+(amazon ~0.4s, mlstatic ~7s) and some **broken** (stringsbymail returns 25 bytes),
+and oversized (a 1500px/126KB image for a ~400px card). The DB only stores the URL,
+so this is purely an image-hosting problem.
+- **Migrate**: a one-time script (`back/src/scripts/`) iterating products, uploading
+  each current image URL to Cloudinary (the uploader accepts remote URLs), and
+  storing the `secure_url`. Add a `--dry-run` mode; run it against prod (Neon
+  `DATABASE_URL` + `NODE_ENV=production` + Cloudinary creds locally). Broken URLs
+  fail to upload → log and skip, fix those by hand via the admin panel.
+- **Optimize delivery**: serve with `f_auto,q_auto` + a sensible width so a 126KB
+  image drops to ~15KB WebP. This is where most of the speed comes from.
+- The prod DB is already seeded, so changing the seed won't update existing rows —
+  the script (or admin re-upload) is required. Also update the seed for fresh DBs.
+
+### 9.3 — Cheap backend wins
+- **gzip compression** (`compression` middleware) — smaller JSON responses.
+- **Cache-Control** on `/categories` (rarely changes) and a short cache on
+  `/products` — fewer/cheaper repeat fetches.
+
+### 9.4 — Out of scope (low ROI)
+- `next/image` — redundant once images are optimized on Cloudinary.
+
+### Other follow-ups (not performance)
+- Admin order management / metrics (Feature 7).
+- [[migrate-to-node-22]] — low priority now (prod already runs fine on its Node).
+- Change the default admin password (`ADMIN_EMAIL`/`ADMIN_PASSWORD`) now that the
+  site is public.
