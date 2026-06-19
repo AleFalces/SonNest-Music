@@ -723,20 +723,18 @@ git push -u origin upgrade-soundnest
 > Zod validation), **Feature 2 — Mercado Pago Checkout Pro**, **Feature 2.5
 > (payments docs)** and **Feature 4 (persistent cart, backend + frontend)** are
 > all done and **merged to `main`**. The cart frontend (PR #15) was smoke-tested
-> end-to-end on Node 20 and merged. Backend suite is at **80 tests** on the
-> webhooks branch. The front is on Vercel (`soundnest-musicstore`).
+> end-to-end on Node 20 and merged. **Feature 5 (MP webhooks) is also done and
+> merged** (PRs #16/#17/#18). Backend suite is at **82 tests** on `main`. The front
+> is on Vercel (`soundnest-musicstore`).
 >
 > **Backend deploy is DEFERRED to last and the provider is UNDECIDED (likely NOT
 > Render).** Do not assume Render. Everything else (features) comes first.
 >
-> **IN PROGRESS — Feature 5: Mercado Pago payment webhooks** (branch
-> `feat-payment-webhooks`, draft **PR #16**). See §8 below for the full plan and
-> what's left.
+> **Feature 5: Mercado Pago payment webhooks ✅ DONE** (PRs #16, #17, #18 merged to
+> `main`). See §8 below.
 >
-> **NEXT SESSION — resume Feature 5 (§8):** add the integration test (webhook
-> route is public), the `notification_url` on the preference, and the docs
-> (README + ngrok note). Then mark PR #16 ready and merge. After that: Cloudinary
-> image uploads, admin order management / metrics. Deploy stays last.
+> **NEXT SESSION:** Cloudinary image uploads, then admin order management / metrics.
+> After that [[migrate-to-node-22]]. Deploy stays last.
 >
 > Work top-down. Run everything on **Node 20 via fnm** + **Postgres in Docker**
 > (`docker compose up -d db`); Windows-native, no WSL.
@@ -786,9 +784,9 @@ in `back/src/entities/User.ts`, so the auth groundwork existed.
 ### P5 — Bigger / flashier
 - [x] **Checkout (test mode)** — done with **Mercado Pago Checkout Pro** instead of
       Stripe (LATAM job market). See Feature 2 below.
-- [ ] **Payment webhooks** (`notification_url`) + a tunnel (ngrok) so order creation
+- [x] **Payment webhooks** (`notification_url`) + a tunnel (ngrok) so order creation
       doesn't depend on the browser returning. Also fixes the localhost "no return
-      button / no auto_return" issue. Good portfolio feature.
+      button / no auto_return" issue. Done (Feature 5, §8; PRs #16/#17/#18).
 - [~] **Cart persistence to the backend** (Feature 4): backend DONE & merged
       (entities/service/routes, PRs #12 & #14, 60 tests). Frontend (4.4) in progress.
 - [ ] **Cloudinary** image uploads.
@@ -1101,12 +1099,13 @@ Verify: full run — `cd back && npm test && npm run build`; front build.
 
 ---
 
-## 8. Feature 5 — Mercado Pago payment webhooks (IN PROGRESS)
+## 8. Feature 5 — Mercado Pago payment webhooks ✅ DONE
 
 Goal: create the order from a **server-to-server** Mercado Pago notification, not
 only from the browser returning to `/checkout/success` (which fails if the buyer
-closes the tab, or on localhost where MP shows no return button). Branch
-`feat-payment-webhooks`, draft **PR #16**. TDD on the service/controller logic.
+closes the tab, or on localhost where MP shows no return button). Shipped across
+**PRs #16, #17** (W1–W4) and **#18** (integration test + `notification_url`), all
+merged to `main`. TDD on the service/controller logic. Backend suite at **82 tests**.
 
 Anchored to the real code: `confirmPaymentService` already verified payment status
 against MP and created the order idempotently (guard: nullable `Order.paymentId`),
@@ -1127,22 +1126,20 @@ so the webhook **reuses** that logic. Backend suite: **80 tests** on the branch.
   `processPaymentService`, always acks **200** (a thrown error → 500 so MP retries).
   +3 controller tests + Swagger `@openapi`.
 
-### Left to do (resume here)
-1. **Integration test**: `POST /payments/webhook` is public — assert it does NOT
-   return the 400 "Token is required" the other payment routes do (use a
-   non-`payment` event so it short-circuits to 200 without touching MP).
-2. **`notification_url`** on the preference in `createPreferenceService`: set
-   `${BACKEND_URL}/payments/webhook` **only when `BACKEND_URL` is public** (same
-   guard idea as `auto_return`), so local-without-tunnel still works via the
-   browser confirm flow. + a test (present when public, omitted when empty).
-3. **Docs (W5)**: README section on webhooks + an **ngrok** note for local testing
-   (expose `:8080`, set `BACKEND_URL` to the https ngrok URL, copy the webhook
-   secret from the MP panel into `MP_WEBHOOK_SECRET`).
-4. Mark PR #16 **ready** and merge; delete the branch.
+### Done (PR #18, merged)
+- **W5a integration test**: `POST /payments/webhook` is public — asserts it does NOT
+  return the 400 "Token is required" the other payment routes do (a non-`payment`
+  event short-circuits to 200 without touching MP).
+- **W5b `notification_url`** on the preference in `createPreferenceService`: set to
+  `${BACKEND_URL}/payments/webhook` **only when `BACKEND_URL` is a public https URL**
+  (same guard as `auto_return`), so local-without-tunnel still works via the browser
+  confirm flow. Tests cover present-when-public and omitted-when-empty.
+- **W5c docs**: README webhooks section + ngrok note; CLAUDE.md API table + envs.
 
 ### For the live end-to-end test (user-side, optional, when ready)
 - ngrok (or similar) to expose the backend publicly; a webhook secret from the MP
   panel. All unit tests pass without either (MP is mocked).
 
-After Feature 5: Cloudinary image uploads, admin order management / metrics. Then
-the deferred backend deploy (provider undecided — NOT assumed to be Render).
+**Next features:** Cloudinary image uploads, admin order management / metrics. Then
+[[migrate-to-node-22]], and the deferred backend deploy (provider undecided — NOT
+assumed to be Render).
