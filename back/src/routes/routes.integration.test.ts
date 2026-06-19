@@ -71,6 +71,12 @@ describe("API integration", () => {
     expect(res.body.message).toBe("Token is required");
   });
 
+  it("GET /health returns 200 without touching the DB", async () => {
+    const res = await request(app).get("/health");
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("ok");
+  });
+
   it("serves Swagger UI at /api-docs", async () => {
     const res = await request(app).get("/api-docs/").redirects(1);
     expect(res.status).toBe(200);
