@@ -97,7 +97,9 @@ erDiagram
 
 ## API reference
 
-Interactive docs are served at **`/api-docs`** (Swagger UI) when the backend is running.
+Interactive docs are served at **`/api-docs`** (Swagger UI) — **live at
+[e-comerce-l5gu.onrender.com/api-docs](https://e-comerce-l5gu.onrender.com/api-docs)**
+(the first request may take a moment to wake the free instance).
 
 | Method | Endpoint          | Auth | Notes                              |
 | ------ | ----------------- | :--: | ---------------------------------- |
@@ -161,7 +163,7 @@ webhook is simply not wired.
 ### 1. Clone
 
 ```bash
-git clone https://github.com/AleFalces/E-comerce.git
+git clone https://github.com/AleFalces/SonNest-Music.git
 cd SonNest-Music
 ```
 

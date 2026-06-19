@@ -12,7 +12,10 @@ const options: swaggerJsdoc.Options = {
       contact: { name: "Ale Falces", url: "https://github.com/AleFalces" },
       license: { name: "MIT", url: "https://opensource.org/licenses/MIT" },
     },
-    servers: [{ url: "http://localhost:8080", description: "Local development" }],
+    servers: [
+      { url: "https://e-comerce-l5gu.onrender.com", description: "Production" },
+      { url: "http://localhost:8080", description: "Local development" },
+    ],
     components: {
       securitySchemes: {
         bearerAuth: {
