@@ -33,16 +33,19 @@
 
 ## Features
 
-- 🔐 **JWT authentication** with bcrypt-hashed passwords
+- 🔐 **JWT authentication** with bcrypt-hashed passwords and role-based access
 - 👤 User registration and login
-- 🛒 Persistent cart (LocalStorage)
-- 💳 **Mercado Pago Checkout Pro** (test mode) — pay from the cart, order created on confirmation
+- 🛒 **Persistent cart** saved per user in the backend
+- 💳 **Mercado Pago Checkout Pro** (test mode) — pay from the cart, with
+  server-to-server **webhooks** (signed, idempotent) creating the order
+- 🛠️ **Admin panel** — product CRUD, stock/price/category editing, and
+  **Cloudinary image uploads**
 - 📦 Stock validation on checkout
 - 🔒 Protected private routes
-- 🧾 Basic order history
-- 🔎 Filtering by name and category
-- ✅ Friendly confirmations (SweetAlert2)
-- 📱 Responsive design
+- 🧾 Order history
+- 🔎 Paginated catalog with search and category filters
+- ✅ Friendly confirmations (SweetAlert2) and toasts
+- 📱 Responsive design with light/dark mode
 
 ---
 
@@ -51,9 +54,9 @@
 | Layer       | Technologies                                                                 |
 | ----------- | ---------------------------------------------------------------------------- |
 | **Frontend**| Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Axios · SweetAlert2 · React Toastify · Lucide |
-| **Backend** | Node.js · Express · TypeScript · TypeORM · PostgreSQL · JWT · Bcrypt          |
+| **Backend** | Node.js · Express · TypeScript · TypeORM · PostgreSQL · JWT · Bcrypt · Mercado Pago · Cloudinary |
 | **Tooling** | Jest · Supertest · Swagger · GitHub Actions · Docker                          |
-| **Deploy**  | Vercel (frontend) · Render (backend)                                          |
+| **Deploy**  | Vercel (frontend) · Render (backend) · Neon (PostgreSQL)                      |
 
 ---
 
@@ -103,6 +106,7 @@ Interactive docs are served at **`/api-docs`** (Swagger UI) when the backend is 
 | POST   | `/users/orders`   |  ✅  | List the current user's orders     |
 | GET    | `/products`       |  ❌  | List products                      |
 | GET    | `/products/:id`   |  ❌  | Single product                     |
+| POST   | `/products/image` |  ✅  | Admin: upload an image to Cloudinary → `{ url }` |
 | POST   | `/orders`         |  ✅  | Create order, validates stock      |
 | POST   | `/payments/create-preference` | ✅ | Mercado Pago: build a Checkout Pro preference → `{ id, init_point }` |
 | GET    | `/payments/confirm?payment_id=` | ✅ | Verify the payment vs MP; if approved, create the order (idempotent) |
@@ -207,6 +211,43 @@ cd back
 npm test          # run the Jest + Supertest suite
 npm run test:cov  # with coverage
 ```
+
+---
+
+## Deployment
+
+The app runs fully in the cloud:
+
+```mermaid
+flowchart LR
+    FE["Frontend<br/>Vercel"] -- HTTPS / JWT --> BE["Backend<br/>Render"]
+    BE -- SSL --> DB[("PostgreSQL<br/>Neon")]
+    BE -- images --> CDN["Cloudinary"]
+    BE -- payments / webhooks --> MP["Mercado Pago"]
+```
+
+- **Frontend** → Vercel. Set `NEXT_PUBLIC_API_URL` to the Render backend URL
+  (it is inlined at build time, so a redeploy is required after changing it).
+- **Backend** → Render (Node 20, `npm run build` + `npm start`).
+- **Database** → Neon (managed Postgres). The production datasource connects over
+  SSL; set `DB_SYNCHRONIZE=true` on the first boot so the schema is created and the
+  catalog seeds, then it can be turned off.
+
+Backend environment variables in production:
+
+| Variable | Purpose |
+| -------- | ------- |
+| `NODE_ENV` | `production` (selects the production datasource) |
+| `DATABASE_URL` | Neon connection string (`...?sslmode=require`) |
+| `DB_SYNCHRONIZE` | `true` on first boot to create the schema, then `false` |
+| `JWT_SECRET` | token signing secret |
+| `MP_ACCESS_TOKEN` | Mercado Pago access token |
+| `FRONTEND_URL` | the https Vercel URL (enables payment `auto_return`) |
+| `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | image uploads |
+| `BACKEND_URL` / `MP_WEBHOOK_SECRET` | public backend URL + secret for payment webhooks |
+
+> The free Render instance sleeps after inactivity, so the first request after an
+> idle period can take a little longer to wake the service.
 
 ---
 
