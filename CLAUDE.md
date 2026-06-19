@@ -9,7 +9,8 @@ Full-stack e-commerce for musical instruments.
 
 - **Frontend** (`Front/my-app/`): Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Axios
 - **Backend** (`back/`): Node.js · Express · TypeScript · TypeORM · PostgreSQL · JWT · Bcrypt
-- **Deploy**: Vercel (frontend) · Render (backend)
+- **Deploy**: Vercel (frontend) · Render (backend) · Neon (PostgreSQL) — **live**
+  (Swagger: https://e-comerce-l5gu.onrender.com/api-docs)
 
 ## Repo layout
 
@@ -50,7 +51,7 @@ npm install
 npm run dev        # nodemon + ts-node on PORT (default 8080)
 npm run build      # tsc -> dist/
 npm start          # node dist/index.js (production)
-npm test           # jest (86 tests: utils, middlewares, services, integration)
+npm test           # jest (87 tests: utils, middlewares, services, integration)
 ```
 
 ### Frontend (`cd Front/my-app`)
