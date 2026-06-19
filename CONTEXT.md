@@ -727,8 +727,9 @@ git push -u origin upgrade-soundnest
 > merged** (PRs #16/#17/#18). Backend suite is at **82 tests** on `main`. The front
 > is on Vercel (`soundnest-musicstore`).
 >
-> **Backend deploy is DEFERRED to last and the provider is UNDECIDED (likely NOT
-> Render).** Do not assume Render. Everything else (features) comes first.
+> **Backend deploy is DONE and LIVE (2026-06-19):** Render (backend) + Neon
+> (Postgres, over SSL) + Vercel (frontend). The full flow works end-to-end,
+> including Mercado Pago payments returning to the site via `auto_return`. See P0.
 >
 > **Feature 5: Mercado Pago payment webhooks ✅ DONE** (PRs #16, #17, #18 merged to
 > `main`). See §8 below.
@@ -739,14 +740,20 @@ git push -u origin upgrade-soundnest
 > Work top-down. Run everything on **Node 20 via fnm** + **Postgres in Docker**
 > (`docker compose up -d db`); Windows-native, no WSL.
 
-### P0 — Production must actually work (blocks everything)
-- [ ] **Render** on **Node 20** + envs (`DATABASE_URL`, `JWT_SECRET`); **do NOT** set
-      `DB_SYNCHRONIZE=true` in prod. Also set **`MP_ACCESS_TOKEN`** and **`FRONTEND_URL`**
-      (the https Vercel URL) so Mercado Pago payments + `auto_return` work in prod.
-- [ ] **Vercel** `NEXT_PUBLIC_API_URL` points to the Render backend URL (not
-      `localhost`) — easiest thing to forget; without it the deployed front has no data.
-- [ ] **Prod smoke test**: front loads, `/products` returns data from Render,
-      login/register work.
+### P0 — Production must actually work ✅ DONE (2026-06-19, LIVE end-to-end)
+- [x] **Backend on Render** (`https://e-comerce-l5gu.onrender.com`), Node 20 via
+      `back/.nvmrc`. Envs set: `DATABASE_URL`, `JWT_SECRET`, `MP_ACCESS_TOKEN`,
+      `FRONTEND_URL` (Vercel https → `auto_return` works), `CLOUDINARY_*`.
+- [x] **Database on Neon** (managed Postgres) — the old Render free Postgres had
+      expired/been deleted (`ENOTFOUND dpg-...`; free Render PG deletes after ~90 days).
+      Prod datasource needs **SSL** (`ssl:{rejectUnauthorized:false}`). Used
+      `DB_SYNCHRONIZE=true` on the first boot to create the schema + seed, then off.
+- [x] **Vercel** `NEXT_PUBLIC_API_URL` → the Render URL (inlined at build → redeploy
+      after changing it).
+- [x] **Prod smoke test**: catalog loads, login/register work, **Mercado Pago payment
+      completes and returns to the site** via `auto_return`.
+- Known follow-up: catalog images load slowly (hotlinked from slow external hosts,
+  not the DB) → host the seed images on Cloudinary + `loading="lazy"`.
 
 ### P1 — Cheap cleanup (closes loops)
 - [ ] Decide whether to version `CONTEXT.md` / `CLAUDE.md` or keep them local-only.
