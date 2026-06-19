@@ -21,6 +21,9 @@ export const AppDataSource = new DataSource(
         url: process.env.DATABASE_URL,
         synchronize: synchronizeInProd,
         logging: false,
+        // Managed Postgres (Neon/Supabase/Render external) requires SSL;
+        // rejectUnauthorized:false accepts the provider-managed certificate.
+        ssl: { rejectUnauthorized: false },
         entities: ["dist/entities/**/*.js"],
         migrations: ["dist/migrations/**/*.js"],
       }
