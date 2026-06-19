@@ -7,6 +7,7 @@ import {
   getProductsService,
   updateProductService,
 } from "../services/products.service";
+import { uploadImageService } from "../services/cloudinary.service";
 import { Product } from "../entities/Product";
 import { ClientError } from "../utils/errors";
 
@@ -71,5 +72,20 @@ export const updateProduct = catchedController(
       categoryId,
     });
     res.json(updated);
+  }
+);
+
+// Receives a single image file (multer puts it on req.file) and returns the
+// hosted Cloudinary URL the admin form then saves as the product's image.
+type MulterRequest = Request & {
+  file?: { buffer: Buffer; mimetype: string };
+};
+
+export const uploadProductImage = catchedController(
+  async (req: Request, res: Response) => {
+    const { file } = req as MulterRequest;
+    if (!file) throw new ClientError("An image file is required", 400);
+    const url = await uploadImageService(file);
+    res.json({ url });
   }
 );
