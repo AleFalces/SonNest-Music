@@ -106,6 +106,7 @@ Interactive docs are served at **`/api-docs`** (Swagger UI) when the backend is 
 | POST   | `/orders`         |  ✅  | Create order, validates stock      |
 | POST   | `/payments/create-preference` | ✅ | Mercado Pago: build a Checkout Pro preference → `{ id, init_point }` |
 | GET    | `/payments/confirm?payment_id=` | ✅ | Verify the payment vs MP; if approved, create the order (idempotent) |
+| POST   | `/payments/webhook` | ❌ | Mercado Pago server-to-server notification; verifies the `x-signature` and creates the order |
 
 > Auth: send the JWT in the `Authorization` header (no `Bearer` prefix).
 
@@ -121,9 +122,28 @@ To try it you need test **credentials** (`MP_ACCESS_TOKEN`) and a Mercado Pago
 **test user** as the buyer (a real account triggers *"una de las partes es de
 prueba"*). On `localhost` Mercado Pago shows no return button and no `auto_return`,
 so confirm manually by opening `/checkout/success?payment_id=<id>`. Setting
-`FRONTEND_URL` to the https Vercel URL enables `auto_return` in production; a
-webhook (`notification_url`) is the planned follow-up so confirmation no longer
-depends on the browser returning.
+`FRONTEND_URL` to the https Vercel URL enables `auto_return` in production.
+
+#### Webhooks (`/payments/webhook`)
+
+So order creation no longer depends on the browser returning, Mercado Pago also
+notifies the backend server-to-server. The preference advertises a
+`notification_url` (`${BACKEND_URL}/payments/webhook`) **only when `BACKEND_URL`
+is a public https URL** — otherwise it's omitted and the browser-driven `confirm`
+flow stays as the fallback. The endpoint is public (MP can't send a JWT): it
+verifies the `x-signature` header against `MP_WEBHOOK_SECRET`, then reuses the same
+idempotent verify-and-create logic as `confirm`, and always acks `200`.
+
+To exercise it locally, expose the backend with a tunnel (e.g. ngrok):
+
+```bash
+ngrok http 8080
+# set BACKEND_URL to the https tunnel URL and MP_WEBHOOK_SECRET to the secret
+# from the Mercado Pago panel, then restart the backend
+```
+
+Without a tunnel everything still works through the browser `confirm` flow; the
+webhook is simply not wired.
 
 ---
 

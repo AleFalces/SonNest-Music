@@ -50,7 +50,7 @@ npm install
 npm run dev        # nodemon + ts-node on PORT (default 8080)
 npm run build      # tsc -> dist/
 npm start          # node dist/index.js (production)
-npm test           # jest (60 tests: utils, middlewares, services, integration)
+npm test           # jest (82 tests: utils, middlewares, services, integration)
 ```
 
 ### Frontend (`cd Front/my-app`)
@@ -73,6 +73,10 @@ docker compose up --build   # db + backend + frontend
 Payments: `MP_ACCESS_TOKEN` (Mercado Pago **test** access token, `APP_USR-…`/`TEST-…`,
 from "Credenciales de prueba") and `FRONTEND_URL` (base for MP return URLs; defaults
 to `http://localhost:3000`, must be the https Vercel URL in prod for `auto_return`).
+Webhooks: `BACKEND_URL` (public base; the preference advertises `notification_url`
+only when this is a public https URL — deployed or an ngrok tunnel) and
+`MP_WEBHOOK_SECRET` (signature secret from the MP panel; when empty, signature
+validation is skipped for local sandbox).
 **Frontend** (`Front/my-app/.env.local`): `NEXT_PUBLIC_API_URL` (default `http://localhost:8080`).
 
 `dataSource.ts` picks the production config when `NODE_ENV=production` (uses `DATABASE_URL`),
@@ -95,6 +99,7 @@ categories and products (`helpers/preLoadCategories.ts`, `preLoadProducts.ts`).
 | DELETE | `/products/:id`   | ✅ admin | delete product                                   |
 | POST   | `/payments/create-preference` | ✅ | Mercado Pago: build a Checkout Pro preference, returns `{ id, init_point }` |
 | GET    | `/payments/confirm?payment_id=` | ✅ | verify payment vs MP; if approved, create the order (idempotent) |
+| POST   | `/payments/webhook` | ❌ | MP server-to-server notification; verifies `x-signature`, creates the order idempotently, always acks 200 |
 | GET    | `/cart`           |    ✅    | current user's cart (lazy-created); items carry `quantity` |
 | POST   | `/cart/items`     |    ✅    | add one unit of `{ productId }` (stock-checked) |
 | DELETE | `/cart/items/:productId` | ✅ | remove one unit (drops the line at 0)        |
