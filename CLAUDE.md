@@ -50,7 +50,7 @@ npm install
 npm run dev        # nodemon + ts-node on PORT (default 8080)
 npm run build      # tsc -> dist/
 npm start          # node dist/index.js (production)
-npm test           # jest (82 tests: utils, middlewares, services, integration)
+npm test           # jest (86 tests: utils, middlewares, services, integration)
 ```
 
 ### Frontend (`cd Front/my-app`)
@@ -76,7 +76,10 @@ to `http://localhost:3000`, must be the https Vercel URL in prod for `auto_retur
 Webhooks: `BACKEND_URL` (public base; the preference advertises `notification_url`
 only when this is a public https URL — deployed or an ngrok tunnel) and
 `MP_WEBHOOK_SECRET` (signature secret from the MP panel; when empty, signature
-validation is skipped for local sandbox).
+validation is skipped for local sandbox). Image uploads: `CLOUDINARY_CLOUD_NAME` /
+`CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` (cloud name is the part after `@` in
+the `CLOUDINARY_URL`, not the environment's display name); needed only for live
+uploads (tests mock the SDK).
 **Frontend** (`Front/my-app/.env.local`): `NEXT_PUBLIC_API_URL` (default `http://localhost:8080`).
 
 `dataSource.ts` picks the production config when `NODE_ENV=production` (uses `DATABASE_URL`),
@@ -97,6 +100,7 @@ categories and products (`helpers/preLoadCategories.ts`, `preLoadProducts.ts`).
 | POST   | `/orders`         |    ✅    | create order, validates stock                    |
 | POST   | `/products`       | ✅ admin | create product (Zod-validated)                   |
 | DELETE | `/products/:id`   | ✅ admin | delete product                                   |
+| POST   | `/products/image` | ✅ admin | upload an image to Cloudinary → `{ url }` (multipart field `image`, via multer) |
 | POST   | `/payments/create-preference` | ✅ | Mercado Pago: build a Checkout Pro preference, returns `{ id, init_point }` |
 | GET    | `/payments/confirm?payment_id=` | ✅ | verify payment vs MP; if approved, create the order (idempotent) |
 | POST   | `/payments/webhook` | ❌ | MP server-to-server notification; verifies `x-signature`, creates the order idempotently, always acks 200 |

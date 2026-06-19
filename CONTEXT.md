@@ -734,8 +734,13 @@ git push -u origin upgrade-soundnest
 > **Feature 5: Mercado Pago payment webhooks ✅ DONE** (PRs #16, #17, #18 merged to
 > `main`). See §8 below.
 >
-> **NEXT SESSION:** Cloudinary image uploads, then admin order management / metrics.
-> After that [[migrate-to-node-22]]. Deploy stays last.
+> **Feature 6: Cloudinary image uploads + admin panel polish ✅ DONE** (open **PR
+> #20**). Backend upload endpoint (multer → Cloudinary, API secret server-side),
+> admin file-picker upload + per-row image/category edit (with confirm modals),
+> logout-redirects-home fix. Backend suite at **86 tests**.
+>
+> **NEXT SESSION:** admin order management / metrics. After that
+> [[migrate-to-node-22]]. Deploy stays last.
 >
 > Work top-down. Run everything on **Node 20 via fnm** + **Postgres in Docker**
 > (`docker compose up -d db`); Windows-native, no WSL.
@@ -796,7 +801,8 @@ in `back/src/entities/User.ts`, so the auth groundwork existed.
       button / no auto_return" issue. Done (Feature 5, §8; PRs #16/#17/#18).
 - [~] **Cart persistence to the backend** (Feature 4): backend DONE & merged
       (entities/service/routes, PRs #12 & #14, 60 tests). Frontend (4.4) in progress.
-- [ ] **Cloudinary** image uploads.
+- [x] **Cloudinary** image uploads. Done (Feature 6, PR #20): backend upload
+      endpoint + admin file-picker / per-row image & category edit.
 
 ---
 
