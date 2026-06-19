@@ -9,8 +9,10 @@ import {
   deleteProduct,
 } from "@/services/productsServices";
 import { getCategories, ICategory } from "@/services/categoriesServices";
+import { uploadProductImage } from "@/services/uploadServices";
 import { IProduct } from "@/helpers/mockProducts";
-import { Loader2, Save, ShieldCheck, Plus, Trash2 } from "lucide-react";
+import { confirmAction } from "@/helpers/alerts";
+import { Loader2, Save, ShieldCheck, Plus, Trash2, ImageUp } from "lucide-react";
 import toast from "react-hot-toast";
 
 type Draft = { stock: string; price: string };
@@ -37,7 +39,10 @@ const AdminProducts: React.FC = () => {
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [creating, setCreating] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [imageEditId, setImageEditId] = useState<number | null>(null);
+  const [categoryEditId, setCategoryEditId] = useState<number | null>(null);
 
   // Gate: only admins (read straight from storage, like the rest of the app).
   useEffect(() => {
@@ -110,8 +115,70 @@ const AdminProducts: React.FC = () => {
     }
   };
 
+  // Replaces an existing product's image: uploads the new file, persists the
+  // returned URL via updateProduct, and refreshes the row in place.
+  const handleImageChange = async (p: IProduct, file: File | undefined) => {
+    if (!file) return;
+    setImageEditId(p.id);
+    try {
+      const image = await uploadProductImage(file);
+      const updated: IProduct = await updateProduct(p.id, { image });
+      setProducts((prev) =>
+        prev.map((item) => (item.id === p.id ? { ...item, ...updated } : item))
+      );
+      toast.success(`Updated image for "${p.name}"`);
+    } catch {
+      toast.error("Could not update the image");
+    } finally {
+      setImageEditId(null);
+    }
+  };
+
+  // Reassigns a product's category (e.g. to fix a wrong pick at creation).
+  // Confirm first so a misclick doesn't silently move it; the controlled select
+  // reverts on cancel since p.categoryId only changes after a successful save.
+  const handleCategoryChange = async (p: IProduct, categoryId: number) => {
+    if (categoryId === p.categoryId) return;
+    const target = categories.find((c) => c.id === categoryId);
+    const confirmed = await confirmAction({
+      title: "Change category?",
+      text: `Move "${p.name}" from "${p.category?.name}" to "${target?.name}".`,
+      confirmButtonText: "Yes, change",
+      icon: "question",
+    });
+    if (!confirmed) return;
+    setCategoryEditId(p.id);
+    try {
+      const updated: IProduct = await updateProduct(p.id, { categoryId });
+      setProducts((prev) =>
+        prev.map((item) => (item.id === p.id ? { ...item, ...updated } : item))
+      );
+      toast.success(`Category updated for "${p.name}"`);
+    } catch {
+      toast.error("Could not change the category");
+    } finally {
+      setCategoryEditId(null);
+    }
+  };
+
   const setFormField = (field: keyof typeof emptyForm, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
+
+  // Uploads the picked file to Cloudinary (via the backend) and stores the
+  // returned URL in form.image, which the create flow submits unchanged.
+  const handleImageSelect = async (file: File | undefined) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadProductImage(file);
+      setFormField("image", url);
+      toast.success("Image uploaded");
+    } catch {
+      toast.error("Could not upload the image");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,7 +228,14 @@ const AdminProducts: React.FC = () => {
   };
 
   const handleDelete = async (p: IProduct) => {
-    if (!window.confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+    // Destructive + irreversible: use the app's prominent modal (not the native
+    // confirm) so the admin gets a clear chance to back out.
+    const confirmed = await confirmAction({
+      title: "Delete product?",
+      text: `"${p.name}" will be permanently removed. This cannot be undone.`,
+      confirmButtonText: "Yes, delete",
+    });
+    if (!confirmed) return;
     setDeletingId(p.id);
     try {
       await deleteProduct(p.id);
@@ -212,12 +286,31 @@ const AdminProducts: React.FC = () => {
             />
           </div>
           <div>
-            <label className="label">Image URL</label>
-            <input
-              className="input"
-              value={form.image}
-              onChange={(e) => setFormField("image", e.target.value)}
-            />
+            <label className="label">Image</label>
+            <div className="flex items-center gap-3">
+              <label className="btn btn-outline cursor-pointer px-3 py-2">
+                {uploading ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <ImageUp size={16} />
+                )}
+                {form.image ? "Change" : "Upload"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={(e) => handleImageSelect(e.target.files?.[0])}
+                />
+              </label>
+              {form.image && (
+                <img
+                  src={form.image}
+                  alt="Preview"
+                  className="h-10 w-10 rounded-lg object-cover"
+                />
+              )}
+            </div>
           </div>
           <div>
             <label className="label">Category</label>
@@ -264,7 +357,7 @@ const AdminProducts: React.FC = () => {
           </div>
         </div>
         <div className="mt-4 flex justify-end">
-          <button type="submit" disabled={creating} className="btn btn-primary px-4 py-2">
+          <button type="submit" disabled={creating || uploading} className="btn btn-primary px-4 py-2">
             {creating ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
             Create product
           </button>
@@ -287,15 +380,54 @@ const AdminProducts: React.FC = () => {
               <tr key={p.id} className="border-b border-muted last:border-0">
                 <td className="p-4">
                   <div className="flex items-center gap-3">
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      className="h-10 w-10 flex-shrink-0 rounded-lg object-cover"
-                    />
+                    <label
+                      title="Change image"
+                      className="group relative h-10 w-10 flex-shrink-0 cursor-pointer overflow-hidden rounded-lg"
+                    >
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        className="h-full w-full object-cover"
+                      />
+                      <span className="absolute inset-0 flex items-center justify-center bg-night/50 text-cream opacity-0 transition-opacity group-hover:opacity-100">
+                        {imageEditId === p.id ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <ImageUp size={14} />
+                        )}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={imageEditId === p.id}
+                        onChange={(e) => handleImageChange(p, e.target.files?.[0])}
+                      />
+                    </label>
                     <span className="font-medium text-ink">{p.name}</span>
                   </div>
                 </td>
-                <td className="p-4 text-ink-soft">{p.category?.name}</td>
+                <td className="p-4">
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={p.categoryId}
+                      disabled={categoryEditId === p.id}
+                      onChange={(e) =>
+                        handleCategoryChange(p, Number(e.target.value))
+                      }
+                      className="input px-2 py-1.5"
+                    >
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                    {categoryEditId === p.id && (
+                      <Loader2 size={14} className="animate-spin text-gold" />
+                    )}
+                  </div>
+                </td>
                 <td className="p-4">
                   <input
                     type="number"
