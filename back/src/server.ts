@@ -13,6 +13,12 @@ app.use(morgan("dev"));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// Lightweight liveness probe (no DB) for uptime monitors and the keep-alive
+// ping that prevents the free host from sleeping (cold starts).
+app.get("/health", (_req: Request, res: Response) => {
+  res.json({ status: "ok", uptime: process.uptime() });
+});
+
 app.use(router);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
