@@ -28,6 +28,11 @@ describe("API integration", () => {
     expect(res.status).toBe(400);
     expect(res.body.message).toBe("Token is required");
   });
+  it("POST /products/image returns 400 without a token", async () => {
+    const res = await request(app).post("/products/image");
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Token is required");
+  });
   it("POST /payments/create-preference returns 400 without a token", async () => {
     const res = await request(app)
       .post("/payments/create-preference")

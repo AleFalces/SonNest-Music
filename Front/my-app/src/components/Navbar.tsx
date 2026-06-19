@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "./AuthContext";
 import { useCart } from "./CartContext";
 import { confirmAction, showSuccess } from "@/helpers/alerts";
@@ -32,6 +32,7 @@ const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const { cartIds } = useCart();
   const pathname = usePathname();
+  const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -54,6 +55,7 @@ const Navbar: React.FC = () => {
       showSuccess("Session successfully closed");
       setIsDropdownOpen(false);
       setIsMobileOpen(false);
+      router.push("/"); // always land on home, regardless of the current page
     }
   };
 

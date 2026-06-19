@@ -29,3 +29,11 @@ export const BACKEND_URL: string = process.env.BACKEND_URL || "";
 // (the "x-signature" header). Configured in the MP panel. When empty, signature
 // validation is skipped (handy for local sandbox testing) with a warning.
 export const MP_WEBHOOK_SECRET: string = process.env.MP_WEBHOOK_SECRET || "";
+
+// Cloudinary credentials for admin product-image uploads. The upload goes
+// through the backend so the API secret never reaches the browser.
+export const CLOUDINARY_CLOUD_NAME: string =
+  process.env.CLOUDINARY_CLOUD_NAME || "";
+export const CLOUDINARY_API_KEY: string = process.env.CLOUDINARY_API_KEY || "";
+export const CLOUDINARY_API_SECRET: string =
+  process.env.CLOUDINARY_API_SECRET || "";

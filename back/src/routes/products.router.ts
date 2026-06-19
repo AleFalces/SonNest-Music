@@ -1,10 +1,12 @@
 import { Router } from "express";
+import multer from "multer";
 import {
   createProduct,
   deleteProduct,
   getProducts,
   getProductsById,
   updateProduct,
+  uploadProductImage,
 } from "../controllers/product.controller";
 import checkLogin from "../middlewares/checkLogin.middleware";
 import isAdmin from "../middlewares/isAdmin.middleware";
@@ -15,6 +17,10 @@ import {
 } from "../schemas/product.schema";
 
 const router = Router();
+
+// Keep the upload in memory: the service streams the buffer straight to
+// Cloudinary, so we never touch the local disk.
+const upload = multer({ storage: multer.memoryStorage() });
 
 /**
  * @openapi
@@ -64,6 +70,54 @@ const router = Router();
 router.get("/", getProducts);
 
 router.post("/", checkLogin, isAdmin, validate(createProductSchema), createProduct);
+
+/**
+ * @openapi
+ * /products/image:
+ *   post:
+ *     tags: [Products]
+ *     summary: Upload a product image to Cloudinary (admin only)
+ *     description: >
+ *       Accepts a single image file (multipart field `image`) and returns its
+ *       hosted Cloudinary URL, which the admin form then submits as the
+ *       product's `image`.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: The hosted image URL
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 url:
+ *                   type: string
+ *                   example: "https://res.cloudinary.com/demo/image/upload/v1/soundnest/products/abc.jpg"
+ *       400:
+ *         description: Missing token or no image file
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post(
+  "/image",
+  checkLogin,
+  isAdmin,
+  upload.single("image"),
+  uploadProductImage
+);
 
 /**
  * @openapi
