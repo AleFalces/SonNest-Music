@@ -1,6 +1,6 @@
 import { Preference, Payment } from "mercadopago";
 import { mpClient } from "../config/mercadopago";
-import { FRONTEND_URL } from "../config/envs";
+import { FRONTEND_URL, BACKEND_URL } from "../config/envs";
 import { ProductRepository } from "../repositories/product.repository";
 import { OrderRepository } from "../repositories/order.repository";
 import { Order } from "../entities/Order";
@@ -38,6 +38,11 @@ export const createPreferenceService = async (
   // so it fails on localhost. Enable it only outside local development.
   const useAutoReturn = /^https:\/\//.test(FRONTEND_URL);
 
+  // Only wire the webhook when this backend is reachable from the internet
+  // (deployed or via a tunnel); otherwise MP couldn't reach it and order
+  // creation falls back to the browser-driven /payments/confirm flow.
+  const useWebhook = /^https:\/\//.test(BACKEND_URL);
+
   const result = await preference.create({
     body: {
       items,
@@ -54,6 +59,9 @@ export const createPreferenceService = async (
         failure: `${FRONTEND_URL}/checkout/failure`,
       },
       ...(useAutoReturn && { auto_return: "approved" }),
+      ...(useWebhook && {
+        notification_url: `${BACKEND_URL}/payments/webhook`,
+      }),
     },
   });
 
