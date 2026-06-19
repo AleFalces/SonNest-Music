@@ -42,6 +42,14 @@ describe("API integration", () => {
     expect(res.body.message).toBe("Token is required");
   });
 
+  // The webhook is public (MP calls it server-to-server) — unlike the routes
+  // above it must NOT require a token. A non-payment event short-circuits to 200
+  // without touching Mercado Pago.
+  it("POST /payments/webhook is public (no token required)", async () => {
+    const res = await request(app).post("/payments/webhook?type=test");
+    expect(res.status).toBe(200);
+  });
+
   it("GET /cart returns 400 without a token", async () => {
     const res = await request(app).get("/cart");
     expect(res.status).toBe(400);

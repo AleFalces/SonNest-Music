@@ -41,6 +41,18 @@ jest.mock("mercadopago", () => ({
   })),
 }));
 
+// Mock envs so we can flip BACKEND_URL per test (it drives the webhook url).
+// We mutate the registry object via requireMock — the import namespace exposes
+// read-only getters, so assigning to it would throw.
+jest.mock("../config/envs", () => ({
+  __esModule: true,
+  FRONTEND_URL: "http://localhost:3000",
+  BACKEND_URL: "",
+  MP_ACCESS_TOKEN: "",
+  MP_WEBHOOK_SECRET: "",
+}));
+const mockedEnvs = jest.requireMock("../config/envs") as { BACKEND_URL: string };
+
 const findOneBy = ProductRepository.findOneBy as jest.Mock;
 const orderFindOneBy = OrderRepository.findOneBy as jest.Mock;
 const orderSave = OrderRepository.save as jest.Mock;
@@ -61,6 +73,7 @@ describe("createPreferenceService", () => {
   };
 
   beforeEach(() => {
+    mockedEnvs.BACKEND_URL = "";
     findOneBy.mockReset();
     mpPreferenceCreate.mockReset();
     // Default: Mercado Pago returns a preference with an id and a checkout URL.
@@ -127,6 +140,25 @@ describe("createPreferenceService", () => {
     expect(findOneBy).toHaveBeenCalledTimes(2);
     const body = mpPreferenceCreate.mock.calls[0][0].body;
     expect(body.items).toHaveLength(2);
+  });
+
+  it("sets notification_url to the webhook when BACKEND_URL is public", async () => {
+    mockedEnvs.BACKEND_URL = "https://abc.ngrok.io";
+    findOneBy.mockResolvedValue(guitar);
+
+    await createPreferenceService([1], 42);
+
+    const body = mpPreferenceCreate.mock.calls[0][0].body;
+    expect(body.notification_url).toBe("https://abc.ngrok.io/payments/webhook");
+  });
+
+  it("omits notification_url when BACKEND_URL is empty (no tunnel)", async () => {
+    findOneBy.mockResolvedValue(guitar);
+
+    await createPreferenceService([1], 42);
+
+    const body = mpPreferenceCreate.mock.calls[0][0].body;
+    expect(body.notification_url).toBeUndefined();
   });
 
   it("throws a 404 ClientError when a product does not exist", async () => {
