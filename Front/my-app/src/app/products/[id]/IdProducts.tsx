@@ -51,12 +51,12 @@ const ProductDetail: React.FC = () => {
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         {/* Image */}
         <div className="card overflow-hidden">
-          <div className="relative aspect-square bg-muted">
+          <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
             <img
               src={product.image}
               alt={product.name}
               decoding="async"
-              className="h-full w-full object-cover"
+              className="h-full w-full rounded-xl object-contain p-4"
             />
             {isOutOfStock && (
               <div className="absolute inset-0 flex items-center justify-center bg-night/55">
