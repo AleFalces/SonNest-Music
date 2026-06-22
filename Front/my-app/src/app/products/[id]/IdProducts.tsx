@@ -2,6 +2,7 @@
 
 import { getProductsById } from "@/services/productsServices";
 import { IProduct } from "@/helpers/mockProducts";
+import { cloudinaryImage } from "@/helpers/cloudinaryImage";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useCart } from "@/components/CartContext";
@@ -53,10 +54,10 @@ const ProductDetail: React.FC = () => {
         <div className="card overflow-hidden">
           <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
             <img
-              src={product.image}
+              src={cloudinaryImage(product.image, 800, 800)}
               alt={product.name}
               decoding="async"
-              className="h-full w-full rounded-xl object-contain p-4"
+              className="h-full w-full object-cover"
             />
             {isOutOfStock && (
               <div className="absolute inset-0 flex items-center justify-center bg-night/55">

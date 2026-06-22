@@ -18,7 +18,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Alder body, maple neck with modern C profile, split single-coil pickup, 20 medium jumbo frets, vintage-style bridge, passive electronics.",
     image:
-      "https://http2.mlstatic.com/D_NQ_NP_2X_942834-MLA45400121419_032021-F.webp",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169698/soundnest/products/kli06xwjijozplsqerym.webp",
     categoryId: 1,
     stock: 10,
   },
@@ -28,7 +28,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Offset alder body, maple neck with slim profile, dual single-coil pickups, 20 frets, passive electronics, vintage-style tuners.",
     image:
-      "https://blog.musicopolix.com/wp-content/webp-express/webp-images/uploads/2016/04/fender-american-elite-jazz-bass-v-nat_1.jpg.webp",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169687/soundnest/products/ddhzes0ud0umvun1gngv.webp",
     categoryId: 1,
     stock: 8,
   },
@@ -38,7 +38,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Ash body, maple neck, active 3-band EQ preamp, humbucker pickup with neodymium magnets, 21 frets, high-mass bridge.",
     image:
-      "https://m.media-amazon.com/images/I/51AFpA55YTL._AC_UF894,1000_QL80_.jpg",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169697/soundnest/products/mc2etmhssthkytq7aypm.jpg",
     categoryId: 1,
     stock: 5,
   },
@@ -48,7 +48,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Solid swamp ash body, fretless wenge fingerboard, bolt-on ovangkol neck, MEC pickups, 2-band active EQ.",
     image:
-      "https://media.guitarcenter.com/is/image/MMGS7/519129000000000-00-600x600.jpg",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169668/soundnest/products/cxje4czdpxzawnvsubax.jpg",
     categoryId: 1,
     stock: 6,
   },
@@ -58,7 +58,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Laminated spruce top, mahogany back and sides, wide nut width, 12-fret neck joint, classical-style headstock, nylon strings.",
     image:
-      "https://www.fmicassets.com/demandware/assets/acoustic-guitars/classical/overview/classical-hero-product.jpg",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169669/soundnest/products/jiyh6ukqe3mt5tasj1fk.jpg",
     categoryId: 2,
     stock: 12,
   },
@@ -68,7 +68,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Spruce top, sapele back and sides, rosewood fingerboard and bridge, scalloped bracing, die-cast tuners, steel strings.",
     image:
-      "https://usa.yamaha.com/files/02_FG9-R_f_0001_87381dd45ce472f1d1e39b29123d7f3d.jpg?impolicy=resize&imwid=2000&imhei=2000",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169670/soundnest/products/xo1dv9puh5bfat3oev7y.jpg",
     categoryId: 2,
     stock: 15,
   },
@@ -78,7 +78,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Alder body, 3 single-coil pickups with 5-way selector, maple neck with modern C profile, synchronized tremolo bridge, 22 frets.",
     image:
-      "https://acdn-us.mitiendanube.com/stores/003/928/657/products/h97920000001000-02-86x86-d88220e3865e880e7517080230376581-1024-1024.jpg",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169672/soundnest/products/kod7bpkixd4w7syfpsxb.jpg",
     categoryId: 2,
     stock: 7,
   },
@@ -88,7 +88,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Solid alder body, two single-coil pickups, string-through-body bridge, maple neck with 22 medium jumbo frets, fixed bridge.",
     image:
-      "https://acdn-us.mitiendanube.com/stores/001/040/912/products/ef11880a-4400-46bc-9ac6-e53b99b96d40-5fc9c6ae21fcc4947617079209288483-1024-1024.jpg",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169673/soundnest/products/tyt5jied7dqftdiep7zz.jpg",
     categoryId: 2,
     stock: 5,
   },
@@ -98,7 +98,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Mahogany body with maple top, dual humbucker pickups, 24-fret rosewood fingerboard, tremolo bridge, wide-thin neck profile.",
     image:
-      "https://www.kennysmusic.co.uk/images/prs-se-custom-24-electric-guitar-turquoise-b-stock-p7485-25886_medium.jpg",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1781883946/soundnest/products/watjrpqdcucnfzf0cc7v.jpg",
     categoryId: 2,
     stock: 9,
   },
@@ -107,7 +107,8 @@ const productsToPreLoad: IProduct[] = [
     price: 500,
     description:
       '9-ply poplar shells, 5-piece configuration, 14" snare, 22" bass drum, chrome hardware, includes cymbals and throne.',
-    image: "https://m.media-amazon.com/images/I/81Dsq8-JU0L._AC_SL1500_.jpg",
+    image:
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169674/soundnest/products/fbozv36nqkqy66vj5wol.jpg",
     categoryId: 3,
     stock: 4,
   },
@@ -127,7 +128,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       '6-ply poplar shells, 5-piece setup with black nickel hardware, 14" snare, 22" bass drum, includes cymbals and hardware.',
     image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyvA7fSXvIxzuCIs9vPg88lttj95frsImcSQ&s",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169678/soundnest/products/wzgoovnoetcc1ic9hbbr.jpg",
     categoryId: 3,
     stock: 2,
   },
@@ -137,7 +138,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "0.73mm thickness, made of Delrin for improved grip, standard shape, matte finish, medium flexibility.",
     image:
-      "https://intermusicashop.com.ar/wp-content/uploads/2024/11/Puas_Medium_Martin_Delrin_0.73mm_X_12_Unidades_D_947654-MLA53226320944_012023-O.jpg",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169679/soundnest/products/wxotllanhsajiiafme0r.jpg",
     categoryId: 4,
     stock: 200,
   },
@@ -147,7 +148,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "0.88mm thickness, celluloid construction, glossy surface, traditional teardrop shape, medium-heavy gauge.",
     image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9pNgQ6YwkbbfWYXNjfwwfFOK4bVDui2-PIw&s",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169680/soundnest/products/vblzbrf7k46cackpyyuc.jpg",
     categoryId: 4,
     stock: 180,
   },
@@ -157,7 +158,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "1.20mm thickness, heavy nylon construction, small jazz shape, matte grip surface, firm attack response.",
     image:
-      "https://magmastoreusa.com/cdn/shop/products/PT120_1200x1200.jpg?v=1659028223",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169681/soundnest/products/tuxrqef8o1wcyj4a8m6h.jpg",
     categoryId: 4,
     stock: 150,
   },
@@ -167,7 +168,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       'Hickory wood, 5A size, wooden tip, medium taper, 16" length and .565" diameter, lacquer finish.',
     image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyi1EvOmCb53GM9bntPtJbEGQbn-Er9J-XJQ&s",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169682/soundnest/products/xe59t6z4eivynqnu7ws0.jpg",
     categoryId: 5,
     stock: 80,
   },
@@ -177,7 +178,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       'Hickory sticks, 5B size, oval wood tip, 16" length, .600" diameter, natural finish, high durability.',
     image:
-      "https://zildjian.com/cdn/shop/files/z5b-5b-select-hickory-natural-pair.jpg?v=1737581552&width=1445",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169683/soundnest/products/waemaf868u7qklaibtlw.jpg",
     categoryId: 5,
     stock: 70,
   },
@@ -187,7 +188,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Nickel-plated steel, long scale, Nanoweb coating, gauges: .045, .065, .085, .105, corrosion-resistant.",
     image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4p3iMkK6ooVvY4U_FhxBDYcHW9r9DTPkgfA&s",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169684/soundnest/products/pdrvdfwaayp9j2r5beur.jpg",
     categoryId: 6,
     stock: 30,
   },
@@ -197,7 +198,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Clear nylon trebles, silver-plated wound basses, normal tension, corrosion barrier packaging, laser-sorted for precision.",
     image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTRbn0lNk2o5nw1Lkzl_Kk05q9NnmTNgl_qA&s",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169685/soundnest/products/m6nwtkkcmerlxgxzvjgq.jpg",
     categoryId: 6,
     stock: 40,
   },
@@ -207,7 +208,7 @@ const productsToPreLoad: IProduct[] = [
     description:
       "Nickel-plated steel, hex core, gauges .010–.046, bright tone, corrosion-resistant packaging.",
     image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRTsNoHnZpXdsjC4i7zmT8OOecP8IGmtEMIQ&s",
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1782169686/soundnest/products/w82fnap07ngomj5hglmy.jpg",
     categoryId: 6,
     stock: 50,
   },
@@ -216,7 +217,8 @@ const productsToPreLoad: IProduct[] = [
     price: 20,
     description:
       "Nickel-plated steel, phosphor bronze coating, light gauge, extended durability, balanced tone for acoustic guitars.",
-    image: "https://www.stringsbymail.com/images/BE170N.jpg",
+    image:
+      "https://res.cloudinary.com/dcd1qwyhk/image/upload/v1781884024/soundnest/products/m8bnm71jhg0balrp3jmw.webp",
     categoryId: 6,
     stock: 45,
   },
