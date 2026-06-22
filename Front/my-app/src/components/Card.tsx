@@ -1,6 +1,7 @@
 "use client";
 
 import { CardProps } from "@/helpers/mockProducts";
+import { cloudinaryImage } from "@/helpers/cloudinaryImage";
 import { useCart } from "./CartContext";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Eye } from "lucide-react";
@@ -26,11 +27,11 @@ export const Card: React.FC<CardProps> = ({ product }) => {
     <div className="card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
       <div className="relative aspect-[4/3] overflow-hidden rounded-t-2xl bg-muted">
         <img
-          src={product.image}
+          src={cloudinaryImage(product.image, 600, 450)}
           alt={product.name}
           loading="lazy"
           decoding="async"
-          className="h-full w-full rounded-xl object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <span className="badge badge-gold absolute left-3 top-3 shadow-soft">
           {product.category.name}
