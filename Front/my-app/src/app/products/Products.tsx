@@ -73,6 +73,11 @@ const Products: React.FC = () => {
     };
   }, [page, debouncedSearch, selectedCategory]);
 
+  // Scroll back to the top when paging, so the new page starts in view.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
+
   const handleSearch = (value: string) => {
     setSearch(value);
     setPage(1);
