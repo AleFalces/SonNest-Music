@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getCategories } from "../controllers/category.controller";
+import { cacheControl } from "../middlewares/cacheControl.middleware";
 
 const router = Router();
 
@@ -29,6 +30,6 @@ const router = Router();
  *                   id: { type: integer, example: 1 }
  *                   name: { type: string, example: "Basses" }
  */
-router.get("/", getCategories);
+router.get("/", cacheControl(3600), getCategories);
 
 export default router;
