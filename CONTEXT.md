@@ -739,8 +739,12 @@ git push -u origin upgrade-soundnest
 > admin file-picker upload + per-row image/category edit (with confirm modals),
 > logout-redirects-home fix. Backend suite at **86 tests**.
 >
-> **NEXT SESSION:** admin order management / metrics. After that
-> [[migrate-to-node-22]]. Deploy stays last.
+> **Performance plan (§9) ✅ COMPLETE:** §9.1 cold start (keep-alive), §9.2 catalog
+> images rehosted/optimized on Cloudinary (PR #27), §9.3 gzip + Cache-Control (PR #29).
+> Backend suite at **92 tests**.
+>
+> **NEXT SESSION:** Feature 7 — admin order management / metrics. Lower priority:
+> [[migrate-to-node-22]] and changing the default admin password now the site is public.
 >
 > Work top-down. Run everything on **Node 20 via fnm** + **Postgres in Docker**
 > (`docker compose up -d db`); Windows-native, no WSL.
@@ -1154,8 +1158,9 @@ so the webhook **reuses** that logic. Backend suite: **80 tests** on the branch.
   panel. All unit tests pass without either (MP is mocked).
 
 **Done since:** Feature 6 (Cloudinary uploads), the **production deploy** (Render +
-Neon + Vercel, live end-to-end — see §6 P0), and the **keep-alive** (health probe +
-scheduled ping, §9.1). **Next:** performance §9, then admin order management / metrics.
+Neon + Vercel, live end-to-end — see §6 P0), the **keep-alive** (health probe +
+scheduled ping, §9.1), and the rest of the **performance plan** (§9.2 images, §9.3
+gzip + cache). **Next:** Feature 7 — admin order management / metrics.
 
 ---
 
@@ -1173,25 +1178,29 @@ Render now stays warm. Neon is intentionally **left to auto-suspend** (resumes i
 ~1–4s on the first query) so we don't burn its free compute budget — pinging
 `/health` avoids touching the DB on purpose.
 
-### 9.2 — Catalog images → Cloudinary (the main remaining win)
-Catalog images are hotlinked from uncontrolled external hosts: inconsistent
-(amazon ~0.4s, mlstatic ~7s) and some **broken** (stringsbymail returns 25 bytes),
-and oversized (a 1500px/126KB image for a ~400px card). The DB only stores the URL,
-so this is purely an image-hosting problem.
-- **Migrate**: a one-time script (`back/src/scripts/`) iterating products, uploading
-  each current image URL to Cloudinary (the uploader accepts remote URLs), and
-  storing the `secure_url`. Add a `--dry-run` mode; run it against prod (Neon
-  `DATABASE_URL` + `NODE_ENV=production` + Cloudinary creds locally). Broken URLs
-  fail to upload → log and skip, fix those by hand via the admin panel.
-- **Optimize delivery**: serve with `f_auto,q_auto` + a sensible width so a 126KB
-  image drops to ~15KB WebP. This is where most of the speed comes from.
-- The prod DB is already seeded, so changing the seed won't update existing rows —
-  the script (or admin re-upload) is required. Also update the seed for fresh DBs.
+### 9.2 — Catalog images → Cloudinary ✅ DONE (PR #27, merged)
+Catalog images were hotlinked from uncontrolled external hosts: inconsistent
+aspect ratios, oversized, and some broken. Rehosted and optimized on Cloudinary.
+- **Helper** (`Front/.../helpers/cloudinaryImage.ts`): builds the delivery URL with
+  `f_auto,q_auto` + `c_pad,b_auto` framing onto a fixed canvas; non-Cloudinary URLs
+  pass through untouched. Card (4:3) and detail (square) use it with `object-cover`
+  so every instrument shows in full, uniformly framed — this also fixed the earlier
+  crop/letterbox issue (PR #26).
+- **Migration** (`back/src/scripts/migrateImages.ts` + `.run.ts`): orchestration with
+  injected deps (skip already-Cloudinary, upload+save external, log+skip broken,
+  `--dry-run`), 4 unit tests. Runner + npm scripts `migrate:images` (dev, ts-node) and
+  `migrate:images:prod` (build + `node dist/...` — prod loads `dist/entities`, so
+  ts-node would hit an EntityMetadata mismatch).
+- **Run against Neon**: enable `NODE_ENV=production` + Neon `DATABASE_URL` in `.env`,
+  `npm run migrate:images:prod`. Done live: 21/21 products on Cloudinary, 0 failed.
+- Seed updated to the rehosted URLs for fresh DBs.
 
-### 9.3 — Cheap backend wins
-- **gzip compression** (`compression` middleware) — smaller JSON responses.
-- **Cache-Control** on `/categories` (rarely changes) and a short cache on
-  `/products` — fewer/cheaper repeat fetches.
+### 9.3 — Cheap backend wins ✅ DONE (PR #29)
+- **gzip compression** (`compression` middleware in `server.ts`) — smaller JSON
+  responses (`Content-Encoding: gzip` + `Vary: Accept-Encoding`).
+- **Cache-Control** via a unit-tested `cacheControl(seconds)` middleware:
+  `/categories` → `public, max-age=3600` (near-static), `/products` list + detail →
+  `public, max-age=60` (short, admins edit stock/price). Backend suite at 92 tests.
 
 ### 9.4 — Out of scope (low ROI)
 - `next/image` — redundant once images are optimized on Cloudinary.
