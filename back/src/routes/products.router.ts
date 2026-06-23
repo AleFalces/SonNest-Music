@@ -11,6 +11,7 @@ import {
 import checkLogin from "../middlewares/checkLogin.middleware";
 import isAdmin from "../middlewares/isAdmin.middleware";
 import { validate } from "../middlewares/validate.middleware";
+import { cacheControl } from "../middlewares/cacheControl.middleware";
 import {
   createProductSchema,
   updateProductSchema,
@@ -67,7 +68,7 @@ const upload = multer({ storage: multer.memoryStorage() });
  *                 total: { type: integer, example: 21 }
  *                 totalPages: { type: integer, example: 3 }
  */
-router.get("/", getProducts);
+router.get("/", cacheControl(60), getProducts);
 
 router.post("/", checkLogin, isAdmin, validate(createProductSchema), createProduct);
 
@@ -146,7 +147,7 @@ router.post(
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/:id", getProductsById);
+router.get("/:id", cacheControl(60), getProductsById);
 
 /**
  * @openapi
