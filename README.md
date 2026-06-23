@@ -130,6 +130,20 @@ prueba"*). On `localhost` Mercado Pago shows no return button and no `auto_retur
 so confirm manually by opening `/checkout/success?payment_id=<id>`. Setting
 `FRONTEND_URL` to the https Vercel URL enables `auto_return` in production.
 
+#### Test cards
+
+Pay with any Mercado Pago **sandbox** card — no real money moves. The **cardholder
+name** sets the outcome, so use `APRO` for an approved payment:
+
+| Network    | Number              | CVV  | Expiry |
+| ---------- | ------------------- | ---- | ------ |
+| Mastercard | 5031 7557 3453 0604 | 123  | 11/30  |
+| Visa       | 4509 9535 6623 3704 | 123  | 11/30  |
+| Amex       | 3711 803032 57522   | 1234 | 11/30  |
+
+Cardholder name → status: `APRO` (approved), `OTHE` (rejected), `CONT` (pending).
+Document (DNI): `12345678`.
+
 #### Webhooks (`/payments/webhook`)
 
 So order creation no longer depends on the browser returning, Mercado Pago also
