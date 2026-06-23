@@ -3,6 +3,7 @@ import { Product } from "../entities/Product";
 import { ProductRepository } from "../repositories/product.repository";
 
 interface IProduct {
+  sku: string;
   name: string;
   price: number;
   description: string;
@@ -13,6 +14,7 @@ interface IProduct {
 
 const productsToPreLoad: IProduct[] = [
   {
+    sku: "SN-BASS-001",
     name: "Fender Precision Bass",
     price: 800,
     description:
@@ -23,6 +25,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 10,
   },
   {
+    sku: "SN-BASS-002",
     name: "Fender Jazz Bass",
     price: 900,
     description:
@@ -33,6 +36,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 8,
   },
   {
+    sku: "SN-BASS-003",
     name: "Music Man StingRay",
     price: 1800,
     description:
@@ -43,6 +47,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 5,
   },
   {
+    sku: "SN-BASS-004",
     name: "Warwick Corvette Standard Fretless",
     price: 1600,
     description:
@@ -53,6 +58,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 6,
   },
   {
+    sku: "SN-GTR-001",
     name: "Classical Nylon Guitar Fender",
     price: 130,
     description:
@@ -63,6 +69,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 12,
   },
   {
+    sku: "SN-GTR-002",
     name: "Acoustic Steel-String Guitar Yamaha",
     price: 250,
     description:
@@ -73,6 +80,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 15,
   },
   {
+    sku: "SN-GTR-003",
     name: "Fender Stratocaster",
     price: 1000,
     description:
@@ -83,6 +91,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 7,
   },
   {
+    sku: "SN-GTR-004",
     name: "Fender Telecaster",
     price: 1200,
     description:
@@ -93,6 +102,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 5,
   },
   {
+    sku: "SN-GTR-005",
     name: "PSR Modern Electric Guitar",
     price: 900,
     description:
@@ -103,6 +113,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 9,
   },
   {
+    sku: "SN-DRM-001",
     name: "Pearl Roadshow Drum Set",
     price: 500,
     description:
@@ -113,6 +124,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 4,
   },
   {
+    sku: "SN-DRM-002",
     name: "Yamaha Stage Custom",
     price: 700,
     description:
@@ -123,6 +135,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 3,
   },
   {
+    sku: "SN-DRM-003",
     name: "Tama Imperialstar",
     price: 780,
     description:
@@ -133,6 +146,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 2,
   },
   {
+    sku: "SN-PICK-001",
     name: "Delrin Standard Pick 0.73mm",
     price: 1,
     description:
@@ -143,6 +157,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 200,
   },
   {
+    sku: "SN-PICK-002",
     name: "Celluloid Classic Pick 0.88mm",
     price: 1,
     description:
@@ -153,6 +168,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 180,
   },
   {
+    sku: "SN-PICK-003",
     name: "Nylon Jazz Pick 1.20mm",
     price: 1,
     description:
@@ -163,6 +179,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 150,
   },
   {
+    sku: "SN-STICK-001",
     name: "Vic Firth 5A American Classic",
     price: 13,
     description:
@@ -173,6 +190,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 80,
   },
   {
+    sku: "SN-STICK-002",
     name: "Zildjian 5B Drumsticks",
     price: 15,
     description:
@@ -183,6 +201,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 70,
   },
   {
+    sku: "SN-STR-001",
     name: "Elixir Nanoweb Bass Strings (.045 - .105)",
     price: 20,
     description:
@@ -193,6 +212,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 30,
   },
   {
+    sku: "SN-STR-002",
     name: "D'Addario Pro-Arte Nylon Strings",
     price: 10,
     description:
@@ -203,6 +223,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 40,
   },
   {
+    sku: "SN-STR-003",
     name: "Ernie Ball Regular Slinky Electric Strings",
     price: 10,
     description:
@@ -213,6 +234,7 @@ const productsToPreLoad: IProduct[] = [
     stock: 50,
   },
   {
+    sku: "SN-STR-004",
     name: "Magma BE170N Acoustic Strings",
     price: 20,
     description:
