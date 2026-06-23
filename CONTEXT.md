@@ -1201,3 +1201,67 @@ so this is purely an image-hosting problem.
 - [[migrate-to-node-22]] — low priority now (prod already runs fine on its Node).
 - Change the default admin password (`ADMIN_EMAIL`/`ADMIN_PASSWORD`) now that the
   site is public.
+
+---
+
+## 10. Feature 8 — Bulk product import (import API + admin upload + n8n)
+
+> Planned, not started (documented 2026-06-22). Motivation: a real bulk-load /
+> stock-update feature **and** a vehicle to study **n8n** (workflow automation) +
+> document-extraction AI. The pitch: turn supplier **invoices** into structured
+> rows and load them into the store automatically.
+
+### Core idea — one endpoint, several clients
+The heart is a single backend **bulk endpoint**; it neither knows nor cares where
+the JSON comes from. Then we attach clients:
+- **Admin upload button** — uploads an Excel/CSV, turns it into the JSON, calls the
+  endpoint. Manual, human-in-the-loop.
+- **n8n flow** — invoice photo/PDF → an AI/LLM node extracts the line items into the
+  **same JSON** → HTTP node calls the **same** endpoint. Automated.
+
+Both speak the **same JSON contract**, so we define it once and build the clients
+incrementally. The admin button doubles as the test harness for the endpoint that
+n8n will later drive.
+
+```
+  [Admin: Excel/CSV] ─┐
+                      ├─► POST /products/bulk (one JSON contract) ─► upsert + stock
+  [n8n: invoice→AI] ──┘                                              (idempotent)
+```
+
+### Open design decisions (settle before coding)
+1. **JSON contract** — fields per line (draft: `sku`, `name`, `description?`,
+   `price?`, `stock`, `categoryId|categoryName`, `image?`). Pin exact required vs
+   optional.
+2. **Stock semantics** — `sum` (`stock += qty`, the invoice case) vs `set`
+   (overwrite). Likely a per-request `mode` flag; default `sum`.
+3. **Product identity** — `Product` has only `id` + `name` today. Add a **unique
+   `sku`** (or barcode) so "update the existing one" is deterministic; matching by
+   name is fragile. This is the gating schema change.
+4. **Idempotency** — reprocessing the same invoice must not double-add stock. Track a
+   processed import/invoice id (same idea as the nullable `Order.paymentId` guard).
+5. **Auth for machines** — n8n shouldn't use the admin JWT (expires). Add a dedicated
+   **API key / service token** for machine-to-machine access.
+6. **Excel parsing location** — keep the backend **JSON-only**; parse the spreadsheet
+   in the admin frontend (e.g. SheetJS) or in n8n. Backend stays format-agnostic.
+7. **Images** — invoices rarely carry product images. MVP: bulk-created products get a
+   **placeholder**, fill real images later via the admin (Cloudinary upload already
+   exists). A later n8n step could fetch/upload images; keep it out of the MVP.
+
+### Phased plan (each = reviewable, useful on its own)
+- **Phase 0 — schema:** add unique `sku` to `Product` (+ migration/seed). Enables the
+  rest.
+- **Phase 1 — backend (TDD):** `bulkUpsertProductsService` (upsert + stock sum/set +
+  idempotency) and `POST /products/bulk` guarded by the API key. A complete,
+  demonstrable feature on its own, testable without n8n.
+- **Phase 2 — admin upload UI:** an "Import" screen that parses an Excel/CSV and posts
+  to the endpoint, with a preview/confirm before applying.
+- **Phase 3 — n8n flow:** invoice → AI extraction (Claude as the LLM node) → JSON →
+  the endpoint, against a backend that already works.
+- **Images:** handled later (placeholder first, optional n8n image step).
+
+### Notes
+- Build on **this repo** (SoundNest as the target store): reuses auth, admin,
+  Cloudinary and the catalog.
+- Run n8n self-hosted in **Docker** (Windows-native — see [[windows-only-no-wsl]]).
+- Sequencing vs Feature 7 is open; both are candidate "next big features".
