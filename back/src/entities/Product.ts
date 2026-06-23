@@ -14,6 +14,11 @@ export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
+  // Supplier/invoice code used as the stable key for bulk import upserts.
+  // Unique but nullable: existing rows predate it and get backfilled.
+  @Column({ unique: true, nullable: true })
+  sku: string;
+
   @Column()
   name: string;
 
