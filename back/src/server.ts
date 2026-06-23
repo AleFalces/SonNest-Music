@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
+import compression from "compression";
 import router from "./routes";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
@@ -8,6 +9,7 @@ import { swaggerSpec } from "./docs/swagger";
 const app = express();
 
 app.use(cors());
+app.use(compression()); // gzip JSON responses to shrink payloads over the wire
 app.use(express.json());
 app.use(morgan("dev"));
 
