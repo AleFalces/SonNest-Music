@@ -1,6 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import {
+  bulkImportProducts,
   createProduct,
   deleteProduct,
   getProducts,
@@ -10,12 +11,14 @@ import {
 } from "../controllers/product.controller";
 import checkLogin from "../middlewares/checkLogin.middleware";
 import isAdmin from "../middlewares/isAdmin.middleware";
+import bulkImportAuth from "../middlewares/bulkImportAuth.middleware";
 import { validate } from "../middlewares/validate.middleware";
 import { cacheControl } from "../middlewares/cacheControl.middleware";
 import {
   createProductSchema,
   updateProductSchema,
 } from "../schemas/product.schema";
+import { bulkImportSchema } from "../schemas/bulkImport.schema";
 
 const router = Router();
 
@@ -71,6 +74,77 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.get("/", cacheControl(60), getProducts);
 
 router.post("/", checkLogin, isAdmin, validate(createProductSchema), createProduct);
+
+/**
+ * @openapi
+ * /products/bulk:
+ *   post:
+ *     tags: [Products]
+ *     summary: Bulk upsert products by sku (admin JWT or x-api-key)
+ *     description: >
+ *       Upserts products keyed by `sku`: existing skus are updated (stock applied
+ *       per `mode`), new skus are created. Returns a per-line summary so a bad row
+ *       is reported without aborting the batch. Authenticates with either an admin
+ *       JWT (Authorization header) or a machine `x-api-key` (for n8n-style clients).
+ *     security:
+ *       - bearerAuth: []
+ *       - apiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [items]
+ *             properties:
+ *               mode:
+ *                 type: string
+ *                 enum: [sum, set]
+ *                 default: sum
+ *                 description: "sum: stock += qty (invoice case); set: overwrite"
+ *               importId:
+ *                 type: string
+ *                 description: Optional import identifier (idempotency is not yet enforced)
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required: [sku, stock]
+ *                   properties:
+ *                     sku: { type: string, example: "SN-STR-001" }
+ *                     stock: { type: integer, example: 5 }
+ *                     name: { type: string }
+ *                     description: { type: string }
+ *                     price: { type: number }
+ *                     image: { type: string }
+ *                     categoryId: { type: integer }
+ *     responses:
+ *       200:
+ *         description: Per-line import summary
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 created: { type: integer, example: 2 }
+ *                 updated: { type: integer, example: 5 }
+ *                 failed: { type: integer, example: 1 }
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       sku: { type: string }
+ *                       status: { type: string, enum: [created, updated, failed] }
+ *                       reason: { type: string }
+ *       400:
+ *         description: Missing credentials or invalid body
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post("/bulk", bulkImportAuth, validate(bulkImportSchema), bulkImportProducts);
 
 /**
  * @openapi

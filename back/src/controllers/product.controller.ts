@@ -7,6 +7,7 @@ import {
   getProductsService,
   updateProductService,
 } from "../services/products.service";
+import { bulkUpsertProductsService } from "../services/bulkImport.service";
 import { uploadImageService } from "../services/cloudinary.service";
 import { Product } from "../entities/Product";
 import { ClientError } from "../utils/errors";
@@ -72,6 +73,14 @@ export const updateProduct = catchedController(
       categoryId,
     });
     res.json(updated);
+  }
+);
+
+export const bulkImportProducts = catchedController(
+  async (req: Request, res: Response) => {
+    const { mode, importId, items } = req.body;
+    const summary = await bulkUpsertProductsService({ mode, importId, items });
+    res.json(summary);
   }
 );
 

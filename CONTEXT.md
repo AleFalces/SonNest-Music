@@ -1210,3 +1210,54 @@ aspect ratios, oversized, and some broken. Rehosted and optimized on Cloudinary.
 - [[migrate-to-node-22]] — low priority now (prod already runs fine on its Node).
 - Change the default admin password (`ADMIN_EMAIL`/`ADMIN_PASSWORD`) now that the
   site is public.
+
+---
+
+## 10. Feature 8 — bulk product import + n8n
+
+> The current portfolio priority (decided 2026-06-22): mass product load / stock
+> update, and a vehicle to study **n8n** + document-extraction AI. Pitch: supplier
+> **invoices** → structured rows → loaded into the store automatically.
+
+### Architecture
+One backend **bulk endpoint** with a single JSON contract; multiple clients hit it:
+- an **admin Excel/CSV upload** button (manual, parses the file in the front → JSON), and
+- an **n8n flow** (invoice photo → AI/LLM extraction → same JSON → same endpoint).
+
+The admin button doubles as the test harness for the endpoint n8n will later drive.
+Excel/file parsing stays in the client (front/n8n) — the backend is JSON-only.
+
+### Endpoint contract — `POST /products/bulk`
+- **Body:** `{ mode?: "sum" | "set", importId?: string, items: Line[] }`.
+- **Line:** `sku` + `stock` always required; `name`, `description`, `price`,
+  `categoryId`, `image` required only when CREATING a new sku, optional when updating.
+- **Upsert keyed by `sku`:** existing → update provided fields + apply stock per `mode`;
+  new → create (needs the create-required fields + an existing `categoryId`).
+- **Stock mode default `sum`** (`stock += qty`, the invoice case); `set` overwrites.
+- **Per-line summary** `{ created, updated, failed, results[] }` (each result carries
+  `sku`, `status`, and a `reason` on failure) — a bad row is reported, never aborts the
+  batch (mirrors the §9.2 migration-script result object).
+- **Auth = single route + dual guard** (`bulkImportAuth`): a machine (n8n) sends a valid
+  `x-api-key` (`IMPORT_API_KEY`), otherwise it falls back to the admin JWT
+  (`checkLogin` + `isAdmin`). The guard stamps `req.body.importSource = "admin" | "machine"`
+  for auditing only — it must NOT branch the upsert logic. NOT a separate per-source route.
+
+### Phases & status
+- **Phase 0 ✅** (PR #33, merged): unique nullable `sku` on `Product`; the 21 seed
+  products keyed `SN-…`. Existing prod rows keep `sku=NULL` until backfilled.
+- **Phase 1 (service core) ✅** (PR #34, merged): `bulkImportSchema` (Zod) +
+  `bulkUpsertProductsService` (repos mocked, TDD); 5 unit tests.
+- **Phase 1 (HTTP) ✅:** `bulkImportProducts` controller, `bulkImportAuth` middleware
+  (+ tests), `IMPORT_API_KEY` env, `POST /products/bulk` route + `@openapi` +
+  `apiKeyAuth` Swagger scheme + a "400 without credentials" integration case. Suite at
+  **100 tests**.
+- **Phase 2 (n8n, future):** self-hosted n8n in Docker ([[windows-only-no-wsl]]) — invoice
+  image → AI extraction → `POST /products/bulk` with the `x-api-key`.
+
+### Deferred / known risks
+- **Idempotency** is deferred for the MVP: `importId` is accepted but not persisted.
+  Re-sending the same invoice in `sum` mode double-counts stock — to add later, persist
+  processed import ids and skip/return the prior result on replay (like the
+  `Order.paymentId` guard).
+- **Images** in the create path are a required field for now; a placeholder/Cloudinary
+  fill-in flow can come later.
