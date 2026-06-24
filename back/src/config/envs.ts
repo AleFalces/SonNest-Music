@@ -30,6 +30,11 @@ export const BACKEND_URL: string = process.env.BACKEND_URL || "";
 // validation is skipped (handy for local sandbox testing) with a warning.
 export const MP_WEBHOOK_SECRET: string = process.env.MP_WEBHOOK_SECRET || "";
 
+// Machine API key for the bulk product import (`POST /products/bulk`). Lets
+// non-browser clients (e.g. an n8n flow) authenticate via the "x-api-key" header
+// instead of an admin JWT. No default on purpose: it is a secret.
+export const IMPORT_API_KEY: string = process.env.IMPORT_API_KEY || "";
+
 // Cloudinary credentials for admin product-image uploads. The upload goes
 // through the backend so the API secret never reaches the browser.
 export const CLOUDINARY_CLOUD_NAME: string =

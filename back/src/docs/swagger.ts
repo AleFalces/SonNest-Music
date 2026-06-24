@@ -24,6 +24,12 @@ const options: swaggerJsdoc.Options = {
           name: "Authorization",
           description: "JWT received from the /users/login endpoint",
         },
+        apiKeyAuth: {
+          type: "apiKey",
+          in: "header",
+          name: "x-api-key",
+          description: "Machine API key for the bulk product import",
+        },
       },
       schemas: {
         Product: {
