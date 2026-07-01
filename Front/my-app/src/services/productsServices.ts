@@ -66,3 +66,38 @@ export const deleteProduct = async (id: number) => {
   const response = await apiServices.delete(`${path}${id}`);
   return response.data;
 };
+
+export interface BulkLine {
+  sku: string;
+  stock: number;
+  name?: string;
+  description?: string;
+  price?: number;
+  image?: string;
+  categoryId?: number;
+}
+
+export interface BulkImportPayload {
+  mode: "sum" | "set";
+  items: BulkLine[];
+}
+
+export interface BulkLineResult {
+  sku: string;
+  status: "created" | "updated" | "failed";
+  reason?: string;
+}
+
+export interface BulkImportSummary {
+  created: number;
+  updated: number;
+  failed: number;
+  results: BulkLineResult[];
+}
+
+export const bulkImportProducts = async (
+  payload: BulkImportPayload
+): Promise<BulkImportSummary> => {
+  const response = await apiServices.post(`${path}bulk`, payload);
+  return response.data;
+};

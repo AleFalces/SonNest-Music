@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getAllProducts,
@@ -12,6 +12,7 @@ import { getCategories, ICategory } from "@/services/categoriesServices";
 import { uploadProductImage } from "@/services/uploadServices";
 import { IProduct } from "@/helpers/mockProducts";
 import { confirmAction } from "@/helpers/alerts";
+import AdminBulkImport from "@/components/AdminBulkImport";
 import { Loader2, Save, ShieldCheck, Plus, Trash2, ImageUp } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -54,32 +55,34 @@ const AdminProducts: React.FC = () => {
     if (!ok) router.replace("/");
   }, [router]);
 
+  // Reloads the product list and rebuilds the editable drafts; reused after a bulk import.
+  const refreshProducts = useCallback(async () => {
+    const data = await getAllProducts();
+    setProducts(data);
+    setDrafts(
+      Object.fromEntries(
+        data.map((p: IProduct) => [
+          p.id,
+          { stock: String(p.stock), price: String(p.price) },
+        ])
+      )
+    );
+  }, []);
+
   useEffect(() => {
     if (!allowed) return;
-    const fetchProducts = async () => {
+    const load = async () => {
       try {
-        const [data, cats] = await Promise.all([
-          getAllProducts(),
-          getCategories(),
-        ]);
-        setProducts(data);
+        const [, cats] = await Promise.all([refreshProducts(), getCategories()]);
         setCategories(cats);
-        setDrafts(
-          Object.fromEntries(
-            data.map((p: IProduct) => [
-              p.id,
-              { stock: String(p.stock), price: String(p.price) },
-            ])
-          )
-        );
       } catch {
         toast.error("Could not load products");
       } finally {
         setLoading(false);
       }
     };
-    fetchProducts();
-  }, [allowed]);
+    load();
+  }, [allowed, refreshProducts]);
 
   const setDraft = (id: number, field: keyof Draft, value: string) =>
     setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
@@ -363,6 +366,8 @@ const AdminProducts: React.FC = () => {
           </button>
         </div>
       </form>
+
+      <AdminBulkImport onImported={refreshProducts} />
 
       <div className="card overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
